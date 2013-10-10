@@ -1791,15 +1791,41 @@ function field_collection_views_api() {
 }
 
 /**
- * Implements hook_features_pipe_component_alter() for fields.
+ * Implements hook_features_pipe_COMPONENT_alter() for field objects.
+ *
+ * This is used with Features v1.0 and v2.0 prior to beta2, newer releases
+ * separated the field_base from the field_instance so this won't be used.
+ *
+ * @see field_collection_features_pipe_field_instance_alter().
  */
 function field_collection_features_pipe_field_alter(&$pipe, $data, $export) {
+  // Skip this if Features has been updated to v2.0-beta2 or newer as it will
+  // use the separate field_instance integration instead.
+  if (!function_exists('field_instance_features_export_options')) {
+    // Add the fields of the field collection entity to the pipe.
+    foreach ($data as $identifier) {
+      if (($field = features_field_load($identifier)) && $field['field_config']['type'] == 'field_collection') {
+        $fields = field_info_instances('field_collection_item', $field['field_config']['field_name']);
+        foreach ($fields as $name => $field) {
+          $pipe['field'][] = "{$field['entity_type']}-{$field['bundle']}-{$field['field_name']}";
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_features_pipe_COMPONENT_alter() for field_instance objects.
+ *
+ * This is used with Features v2.0-beta2 and newer.
+ */
+function field_collection_features_pipe_field_instance_alter(&$pipe, $data, $export) {
   // Add the fields of the field collection entity to the pipe.
   foreach ($data as $identifier) {
     if (($field = features_field_load($identifier)) && $field['field_config']['type'] == 'field_collection') {
       $fields = field_info_instances('field_collection_item', $field['field_config']['field_name']);
       foreach ($fields as $name => $field) {
-        $pipe['field'][] = "{$field['entity_type']}-{$field['bundle']}-{$field['field_name']}";
+        $pipe['field_instance'][] = "{$field['entity_type']}-{$field['bundle']}-{$field['field_name']}";
       }
     }
   }
