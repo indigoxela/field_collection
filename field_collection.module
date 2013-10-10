@@ -888,13 +888,37 @@ function field_collection_field_settings_form($field, $instance) {
 }
 
 /**
- * Implements hook_field_presave().
+ * Implements hook_field_insert().
+ */
+function field_collection_field_insert($host_entity_type, $host_entity, $field, $instance, $langcode, &$items) {
+  foreach ($items as &$item) {
+    if (isset($item['entity'])) {
+      if ($entity = field_collection_field_get_entity($item)) {
+        if (!empty($entity->is_new)) {
+          $entity->setHostEntity($host_entity_type, $host_entity, LANGUAGE_NONE, FALSE);
+        }
+        $entity->save(TRUE);
+        $item = array(
+          'value' => $entity->item_id,
+          'revision_id' => $entity->revision_id,
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_update().
  *
+ * Care about removed field collection items.
  * Support saving field collection items in @code $item['entity'] @endcode. This
  * may be used to seamlessly create field collection items during host-entity
  * creation or to save changes to the host entity and its collections at once.
  */
-function field_collection_field_presave($host_entity_type, $host_entity, $field, $instance, $langcode, &$items) {
+function field_collection_field_update($host_entity_type, $host_entity, $field, $instance, $langcode, &$items) {
+  $items_original = !empty($host_entity->original->{$field['field_name']}[$langcode]) ? $host_entity->original->{$field['field_name']}[$langcode] : array();
+  $original_by_id = array_flip(field_collection_field_item_to_ids($items_original));
+
   foreach ($items as &$item) {
     // In case the entity has been changed / created, save it and set the id.
     // If the host entity creates a new revision, save new item-revisions as
@@ -926,19 +950,6 @@ function field_collection_field_presave($host_entity_type, $host_entity, $field,
         );
       }
     }
-  }
-}
-
-/**
- * Implements hook_field_update().
- *
- * Care about removed field collection items.
- */
-function field_collection_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  $items_original = !empty($entity->original->{$field['field_name']}[$langcode]) ? $entity->original->{$field['field_name']}[$langcode] : array();
-  $original_by_id = array_flip(field_collection_field_item_to_ids($items_original));
-
-  foreach ($items as $item) {
     unset($original_by_id[$item['value']]);
   }
 
@@ -948,7 +959,7 @@ function field_collection_field_update($entity_type, $entity, $field, $instance,
 
     // If we are creating a new revision, the old-items should be kept but get
     // marked as archived now.
-    if (!empty($entity->revision)) {
+    if (!empty($host_entity->revision)) {
       db_update('field_collection_item')
         ->fields(array('archived' => 1))
         ->condition('item_id', $ids, 'IN')
@@ -956,8 +967,8 @@ function field_collection_field_update($entity_type, $entity, $field, $instance,
     }
     else {
       // Delete unused field collection items now.
-      foreach (field_collection_item_load_multiple($ids) as $item) {
-        $item->deleteRevision(TRUE);
+      foreach (field_collection_item_load_multiple($ids) as $un_item) {
+        $un_item->deleteRevision(TRUE);
       }
     }
   }
