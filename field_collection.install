@@ -84,6 +84,9 @@ function field_collection_field_schema($field) {
   );
   return array(
     'columns' => $columns,
+    'indexes' => array(
+      'revision_id' => array('revision_id'),
+    ),
   );
 }
 
@@ -259,4 +262,22 @@ function field_collection_update_7003() {
 
   // Need to get the system up-to-date so drupal_schema_fields_sql() will work.
   $schema = drupal_get_schema('field_collection_item_revision', TRUE);
+}
+
+/**
+ * Add index on {$field_collection_field}_revision_id column for all tables.
+ */
+function field_collection_update_7004() {
+  // Update the field_collection_field_schema columns for all tables.
+  foreach (field_read_fields(array('type' => 'field_collection')) as $field_name => $field) {
+    $table_prefixes = array('field_data', 'field_revision');
+    foreach ($table_prefixes as $table_prefix) {
+
+      $table = sprintf('%s_%s', $table_prefix, $field_name);
+      $revision_id_column = sprintf('%s_revision_id', $field_name);
+
+      // Add index on revision_id column.
+      db_add_index($table, $revision_id_column, array($revision_id_column));
+    }
+  }
 }
