@@ -921,6 +921,12 @@ function field_collection_field_insert($host_entity_type, $host_entity, $field, 
  * creation or to save changes to the host entity and its collections at once.
  */
 function field_collection_field_update($host_entity_type, $host_entity, $field, $instance, $langcode, &$items) {
+  // Prevent workbench moderation from deleting field collections on node_save()
+  // during workbench_moderation_store(), when $host_entity->revision == 0.
+  if (!empty($host_entity->workbench_moderation['updating_live_revision'])) {
+    return;
+  }
+
   $items_original = !empty($host_entity->original->{$field['field_name']}[$langcode]) ? $host_entity->original->{$field['field_name']}[$langcode] : array();
   $original_by_id = array_flip(field_collection_field_item_to_ids($items_original));
 
