@@ -1702,7 +1702,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
         $is_empty_option = (isset($elements['#options']['_none']) && $elements['#value'] == '_none');
         if ($is_empty_multiple || $is_empty_string || $is_empty_value || $is_empty_option) {
           if (isset($elements['#title'])) {
-            form_error($elements, t('!name field is required.', array('!name' => $elements['#title'])));
+            form_error($elements, t('@name field is required.', array('@name' => $elements['#title'])));
           }
           else {
             form_error($elements);
