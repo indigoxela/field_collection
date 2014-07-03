@@ -897,17 +897,25 @@ function field_collection_field_settings_form($field, $instance) {
  */
 function field_collection_field_insert($host_entity_type, $host_entity, $field, $instance, $langcode, &$items) {
   foreach ($items as &$item) {
-    if (isset($item['entity'])) {
-      if ($entity = field_collection_field_get_entity($item)) {
-        if (!empty($entity->is_new)) {
-          $entity->setHostEntity($host_entity_type, $host_entity, LANGUAGE_NONE, FALSE);
-        }
-        $entity->save(TRUE);
-        $item = array(
-          'value' => $entity->item_id,
-          'revision_id' => $entity->revision_id,
-        );
+    if ($entity = field_collection_field_get_entity($item)) {
+      if (!empty($host_entity->is_new) && empty($entity->is_new)) {
+        // If the host entity is new but we have a field_collection that is not
+        // new, it means that its host is being cloned. Thus we need to clone
+        // the field collection entity as well.
+        $new_entity = clone $entity;
+        $new_entity->item_id = NULL;
+        $new_entity->revision_id = NULL;
+        $new_entity->is_new = TRUE;
+        $entity = $new_entity;
       }
+      if (!empty($entity->is_new)) {
+        $entity->setHostEntity($host_entity_type, $host_entity, LANGUAGE_NONE, FALSE);
+      }
+      $entity->save(TRUE);
+      $item = array(
+        'value' => $entity->item_id,
+        'revision_id' => $entity->revision_id,
+      );
     }
   }
 }
