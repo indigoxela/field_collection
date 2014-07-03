@@ -113,12 +113,19 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
 
     // Test Revisions.
     list ($node, $item) = $this->createNodeWithFieldCollection();
+    $entity2 = entity_create('field_collection_item', array('field_name' => $this->field_name));
+    $node->{$this->field_name}[LANGUAGE_NONE][] = array('entity' => $entity2);
+    node_save($node);
+    $this->assertEqual($entity2->archived, FALSE, 'New field collection item with new content revision is not archived.');
 
     // Test saving a new revision of a node.
     $node->revision = TRUE;
     node_save($node);
     $item_updated = field_collection_item_load($node->{$this->field_name}[LANGUAGE_NONE][0]['value']);
     $this->assertNotEqual($item->revision_id, $item_updated->revision_id, 'Creating a new host entity revision creates a new field collection revision.');
+
+    // Test saving a new revision with a new field collection item.
+    $node->revision = TRUE;
 
     // Test saving the node without creating a new revision.
     $item = $item_updated;
