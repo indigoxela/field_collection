@@ -261,12 +261,15 @@ class FieldCollectionItemEntity extends Entity {
    * Specifies the default label, which is picked up by label() by default.
    */
   public function defaultLabel() {
-    // @todo make configurable.
     if ($this->fetchHostDetails()) {
       $field = $this->fieldInfo();
       $label = $this->translatedInstanceLabel();
+      $host  = $this->hostEntity();
 
-      if ($field['cardinality'] == 1) {
+      if ($new_label = module_invoke_all('field_collection_item_label', $this, $host, $field, $label)) {
+        return array_pop($new_label);
+      }
+      elseif ($field['cardinality'] == 1) {
         return $label;
       }
       elseif ($this->item_id) {
