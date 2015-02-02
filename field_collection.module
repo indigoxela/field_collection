@@ -587,9 +587,21 @@ function field_collection_item_is_empty(FieldCollectionItemEntity $item) {
   $instances = field_info_instances('field_collection_item', $item->field_name);
   $is_empty = TRUE;
 
+  // Check whether all fields are booleans.
+  $all_boolean = $instances && !(bool) array_filter($instances, function ($instance) {
+    $field = field_info_field($instance['field_name']);
+    return $field['type'] != 'list_boolean';
+  });
+
   foreach ($instances as $instance) {
     $field_name = $instance['field_name'];
     $field = field_info_field($field_name);
+
+    // Boolean fields as those are always considered non-empty, thus their
+    // information is not useful and can be skipped by default.
+    if (!$all_boolean && $field['type'] == 'list_boolean') {
+      continue;
+    }
 
     // Determine the list of languages to iterate on.
     $languages = field_available_languages('field_collection_item', $field);
