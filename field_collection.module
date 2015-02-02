@@ -476,6 +476,9 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
             $entity->default_revision = TRUE;
             $entity->archived = FALSE;
           }
+          else {
+            $entity->default_revision = FALSE;
+          }
         }
         $entity->save(TRUE);
 
