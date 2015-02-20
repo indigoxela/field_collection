@@ -433,7 +433,11 @@ class FieldCollectionItemEntity extends Entity {
     $delta = $this->delta();
     if ($this->item_id && isset($delta)) {
       unset($this->hostEntity->{$this->field_name}[$this->langcode][$delta]);
-      entity_save($this->hostEntityType, $this->hostEntity);
+      // Do not save when the host entity is being deleted. See
+      // field_collection_field_delete().
+      if (empty($this->hostEntity->field_collection_deleting)) {
+        entity_save($this->hostEntityType, $this->hostEntity);
+      }
     }
   }
 

@@ -539,6 +539,9 @@ function field_collection_field_delete($entity_type, $entity, $field, $instance,
         unset($ids[$id_key]);
       }
     }
+    // Set a flag to remember that the host entity is being deleted. See
+    // FieldCollectionItemEntity::deleteHostEntityReference().
+    $entity->field_collection_deleting = TRUE;
 
     entity_delete_multiple('field_collection_item', $ids);
   }
