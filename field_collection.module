@@ -1489,3 +1489,18 @@ function field_collection_devel_generate($object, $field, $instance, $bundle) {
 function field_collection_hide_blank_items($field) {
   return !empty($field['settings']['hide_blank_items']) && $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED;
 }
+
+/**
+ * Implements hook_admin_menu_map().
+ */
+function field_collection_admin_menu_map() {
+  if (user_access('administer field collections')) {
+    $map['admin/structure/field-collections/%field_collection_field_name'] = array(
+      'parent' => 'admin/structure/field-collections',
+      'arguments' => array(
+        array('%field_collection_field_name' => array_keys(field_read_fields(array('type' => 'field_collection')))),
+      ),
+    );
+    return $map;
+  }
+}
