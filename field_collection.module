@@ -302,7 +302,9 @@ function field_collection_item_access($op, FieldCollectionItemEntity $item = NUL
  */
 function field_collection_item_delete($id) {
   $fci = field_collection_item_load($id);
-  $fci->delete();
+  if ($fci) {
+    $fci->delete();
+  }
 }
 
 /**
