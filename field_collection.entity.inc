@@ -213,7 +213,8 @@ class FieldCollectionItemEntity extends Entity {
   /**
    * Updates the wrapped host entity object.
    *
-   * @param $entity
+   * @param object $entity
+   *   Host entity.
    */
   public function updateHostEntity($entity) {
     $this->fetchHostDetails();
@@ -231,7 +232,7 @@ class FieldCollectionItemEntity extends Entity {
       $this->hostEntity = $entity;
       $delta = $this->delta();
       if (isset($entity->{$this->field_name}[$this->langcode][$delta]['entity'])) {
-        $entity->{$this->field_name}[$this->langcode][$delta]['entity'] = $entity;
+        $entity->{$this->field_name}[$this->langcode][$delta]['entity'] = $this;
       }
     }
     else {
