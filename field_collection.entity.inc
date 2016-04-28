@@ -507,6 +507,15 @@ class FieldCollectionItemEntity extends Entity {
   }
 
   /**
+   * Generate an array for rendering the field collection item.
+   */
+  public function view($view_mode = 'full', $langcode = NULL, $page = NULL) {
+    // Allow modules to change the view mode.
+    $view_mode = key(entity_view_mode_prepare($this->entityType, array($this->item_id => $this), $view_mode, $langcode));
+    return parent::view($view_mode, $langcode, $page);
+  }
+
+  /**
    * Magic method to only serialize what's necessary.
    */
   public function __sleep() {
