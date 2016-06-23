@@ -215,9 +215,20 @@ class FieldCollectionItemEntity extends Entity {
    *
    * @param object $entity
    *   Host entity.
+   * @param string $host_entity_type
+   *   The entity type of the entity the field collection is attached to.
    */
-  public function updateHostEntity($entity) {
+  public function updateHostEntity($entity, $host_entity_type = NULL) {
     $this->fetchHostDetails();
+    // If it isn't possible to retrieve hostEntityType due to the fact that it's
+    // not saved in the DB yet then fill in info about the hostEntity manually.
+    // This happens when creating a new revision of a field collection entity
+    // and it needs to relate to the new revision of the host entity.
+    if (!$this->hostEntityType) {
+      $this->hostEntityType = $host_entity_type;
+      $this->hostEntity = $entity;
+      list($this->hostEntityId, $this->hostEntityRevisionId) = entity_extract_ids($this->hostEntityType, $this->hostEntity);
+    }
     list($recieved_id) = entity_extract_ids($this->hostEntityType, $entity);
 
     if ($this->isInUse()) {
