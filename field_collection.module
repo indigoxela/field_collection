@@ -382,6 +382,7 @@ function field_collection_field_info() {
       'settings' => array(
         'path' => '',
         'hide_blank_items' => TRUE,
+        'hide_initial_item' => FALSE,
       ),
       // Add entity property info.
       'property_type' => 'field_collection_item',
@@ -435,12 +436,26 @@ function field_collection_field_settings_form($field, $instance) {
     '#type' => 'checkbox',
     '#title' => t('Hide blank items'),
     '#default_value' => $field['settings']['hide_blank_items'],
-    '#description' => t("A blank item is always added to any unlimited valued field's form. If checked, any additional blank items are hidden except of the first item which is always shown."),
+    '#description' => t('Ordinarily a new blank item will be added to unlimited cardinality fields whenever they appear in a form.  Checking this will prevent the blank item from appearing if the field already contains data.'),
     '#weight' => 10,
     '#states' => array(
       // Show the setting if the cardinality is -1.
       'visible' => array(
         ':input[name="field[cardinality]"]' => array('value' => '-1'),
+      ),
+    ),
+  );
+  $form['hide_initial_item'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide initial item'),
+    '#default_value' => $field['settings']['hide_initial_item'],
+    '#description' => t('Prevent the default blank item from appearing even if the field has no data yet.  If checked, the user must explicitly add the field collection.'),
+    '#weight' => 11,
+    '#states' => array(
+      // Show the setting if the cardinality is -1 and hide_blank_items is checked.
+      'visible' => array(
+        ':input[name="field[cardinality]"]' => array('value' => '-1'),
+        ':input[name="field[settings][hide_blank_items]"]' => array('checked' => TRUE),
       ),
     ),
   );
@@ -1054,7 +1069,7 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
       }
       elseif (field_collection_hide_blank_items($field) && $field_state['items_count'] == 0) {
         // We show one item, so also specify that as item count. So when the
-        // add button is pressed the item count will be 2 and we show to items.
+        // add button is pressed the item count will be 2 and we show two items.
         $field_state['items_count'] = 1;
       }
 
@@ -1190,6 +1205,16 @@ function field_collection_field_attach_form($entity_type, $entity, &$form, &$for
       if ($form[$field_name][$element_langcode]['#max_delta'] > 0) {
         $form[$field_name][$element_langcode]['#max_delta']--;
       }
+      // Remove blank form elements and force user to explicitly add a field
+      // collection if both 'hide_initial_item' and 'hide_blank_items' are TRUE.
+      if ($field['settings']['hide_initial_item']
+          && $field['settings']['hide_blank_items']
+          && field_collection_item_is_empty($form[$field_name][$element_langcode][0]['#entity'])) {
+
+        _field_collection_process_children_attached($form[$field_name][$element_langcode][0]);
+        unset($form[$field_name][$element_langcode][0]);
+        unset($form_state['field']['#parents'][$field_name][$element_langcode][0]);
+      }
     }
 
     if ($field['type'] == 'field_collection'
@@ -1219,6 +1244,23 @@ function field_collection_field_attach_form($entity_type, $entity, &$form, &$for
         $form[$field_name]['#multilingual'] = (boolean) $field['translatable'];
       }
     }
+  }
+}
+
+/**
+ * Recurses through field children and processes thier attachments.
+ */
+function _field_collection_process_children_attached($elements) {
+  if (empty($elements)) {
+    return;
+  }
+
+  if (isset($elements['#attached'])) {
+    drupal_process_attached($elements);
+  }
+
+  foreach (element_children($elements) as $key) {
+    _field_collection_process_children_attached($elements[$key]);
   }
 }
 
