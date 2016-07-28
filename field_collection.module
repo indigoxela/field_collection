@@ -1317,12 +1317,16 @@ function field_collection_remove_submit($form, &$form_state) {
 
   $field_state = field_form_get_state($parents, $field_name, $langcode, $form_state);
 
+  // Use the actual array of field collection items as the upper limit of this
+  // for loop rather than 'item_count'. This is because it will be creating extra
+  // dummy items here and the two measures go out of sync after the fist delete.
+  $field_collection_item_count = count($field_state['entity']) - 1;
+
   // Go ahead and renumber everything from our delta to the last
   // item down one. This will overwrite the item being removed.
-  for ($i = $delta; $i <= $field_state['items_count']; $i++) {
+  for ($i = $delta; $i <= $field_collection_item_count; $i++) {
     $old_element_address = array_merge($address, array($i + 1));
     $old_element_values_address = array_merge($values_address, array($i + 1));
-    $new_element_address = array_merge($address, array($i));
     $new_element_values_address = array_merge($values_address, array($i));
 
     $moving_element = drupal_array_get_nested_value($form, $old_element_address);
