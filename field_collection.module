@@ -1528,7 +1528,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
           if (isset($elements['#title'])) {
             form_error($elements, t('@name field is required in the @collection collection.', array(
               '@name' => $elements['#title'],
-              '@collection' => $instance['label']
+              '@collection' => $field_state['instance']['label'],
             )));
           }
           else {
