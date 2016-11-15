@@ -790,13 +790,13 @@ function field_collection_field_formatter_settings_form($field, $instance, $view
       '#title' => t('Edit link title'),
       '#default_value' => $settings['edit'],
       '#description' => t('Leave the title empty, to hide the link.'),
-      '#access' => field_collection_item_is_translatable(),
     );
     $elements['translate'] = array(
       '#type' => 'textfield',
       '#title' => t('Translate link title'),
       '#default_value' => $settings['translate'],
       '#description' => t('Leave the title empty, to hide the link.'),
+      '#access' => field_collection_item_is_translatable(),
     );
     $elements['delete'] = array(
       '#type' => 'textfield',
