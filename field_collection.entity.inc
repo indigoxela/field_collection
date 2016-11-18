@@ -473,9 +473,11 @@ class FieldCollectionItemEntity extends Entity {
   /**
    * Deletes the field collection item and the reference in the host entity.
    */
-  public function delete() {
+  public function delete($skip_host_save = FALSE) {
     parent::delete();
-    $this->deleteHostEntityReference();
+    if (!$skip_host_save) {
+      $this->deleteHostEntityReference();
+    }
   }
 
   /**
@@ -578,7 +580,7 @@ class FieldCollectionItemEntity extends Entity {
       }
       if (!$row && !isset($this->hostEntity()->{$this->field_name}[$this->langcode()][$this->delta()])) {
         // Delete if there is no existing revision or translation to be saved.
-        $this->delete();
+        $this->delete($skip_host_update);
       }
     }
   }
