@@ -1177,6 +1177,7 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
           '#value' => t('Remove'),
           '#validate' => array(),
           '#submit' => array('field_collection_remove_submit'),
+          '#attributes' => array('class' => array('remove-button')),
           '#limit_validation_errors' => array(),
           '#ajax' => array(
             // 'wrapper' is filled in field_collection_field_attach_form().
