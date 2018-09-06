@@ -774,6 +774,7 @@ function field_collection_field_formatter_info() {
       'field types' => array('field_collection'),
       'settings' =>  array(
         'edit' => t('Edit'),
+        'translate' => t('Translate'),
         'delete' => t('Delete'),
         'add' => t('Add'),
         'description' => TRUE,
