@@ -84,7 +84,7 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
    * @param $row
    *   Raw source data object - passed through to prepare/complete handlers.
    *
-   * @return array|false
+   * @return array|bool
    *   Array of key fields (item_id only in this case) of the collection that
    *   was saved or FALSE on failure.
    */
@@ -126,7 +126,7 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
 
     $this->prepare($entity, $row);
 
-    // Restore fields from original field_collection_item if updating
+    // Restore fields from original field_collection_item if updating.
     if ($updating) {
       foreach ($entity as $field => $value) {
         if ('field_' != substr($field, 0, 6)) {
@@ -177,6 +177,7 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
     $this->completeRollback($item_id);
     return TRUE;
   }
+
 }
 
 /**
