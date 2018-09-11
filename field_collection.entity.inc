@@ -231,7 +231,7 @@ class FieldCollectionItemEntity extends Entity {
     }
     list($recieved_id) = entity_extract_ids($this->hostEntityType, $entity);
 
-    if ($this->isInUse()) {
+    if ($this->isInUse() && !empty($this->hostEntityId)) {
       $current_id = $this->hostEntityId;
     }
     else {
