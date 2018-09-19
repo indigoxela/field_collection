@@ -192,6 +192,7 @@ class FieldCollectionItemEntity extends Entity {
       list($this->hostEntityId, $this->hostEntityRevisionId) = entity_extract_ids($this->hostEntityType, $this->hostEntity);
       // If the host entity is not saved yet, set the id to FALSE. So
       // fetchHostDetails() does not try to load the host entity details.
+      // Checking value of $this->hostEntityId.
       if (!isset($this->hostEntityId)) {
         $this->hostEntityId = FALSE;
       }
