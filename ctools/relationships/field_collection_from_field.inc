@@ -78,7 +78,7 @@ function field_collection_field_collection_from_field_context($context, $conf) {
   if (isset($entity->{$plugin_info['field_name']})) {
 
     $items = field_get_items($plugin_info['entity_type'], $entity, $plugin_info['field_name']);
-    if (isset($items[$delta]['value'])) {
+    if (!empty($items) && isset($items[$delta]['value'])) {
       $field_collection_item = field_collection_item_load($items[$delta]['value']);
     }
 
