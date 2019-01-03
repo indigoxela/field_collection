@@ -25,6 +25,11 @@
  * @see http://drupal.org/node/1900640
  */
 
+// Avoid issues when migrate module is disabled.
+if (!class_exists('MigrateDestinationEntity')) {
+  return;
+}
+
 /**
  * Destination class implementing migration into field_collection.
  */
