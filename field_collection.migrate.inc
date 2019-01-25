@@ -98,8 +98,10 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
     if (isset($row->migrate_map_destid1)) {
       // We're updated an existing entity - start from the previous data.
       // entity_load() returns an array, so we get the field collection entity
-      // with array_shift().
-      if ($entity = array_shift(entity_load('field_collection_item', array($row->migrate_map_destid1), array(), TRUE))) {
+      // with reset().
+      $result = entity_load('field_collection_item', array($row->migrate_map_destid1), array(), TRUE);
+      $entity = reset($result);
+      if ($entity) {
         $entity_old = clone $entity;
         $updating = TRUE;
       }
