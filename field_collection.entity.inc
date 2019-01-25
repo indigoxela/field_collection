@@ -312,7 +312,8 @@ class FieldCollectionItemEntity extends Entity {
         }
         $result = $query->execute();
         if ($result) {
-          list($this->hostEntityType, $data) = each($result);
+          $this->hostEntityType = key($result);
+          $data = current($result);
 
           if ($this->isInUse()) {
             $data_array_keys = array_keys($data);
