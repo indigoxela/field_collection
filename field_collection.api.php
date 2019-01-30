@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains API documentation and examples for the Field collection module.
+ * Contains API documentation and examples for the Field Collection.
  */
 
 /**

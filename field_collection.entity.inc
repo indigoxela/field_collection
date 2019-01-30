@@ -6,7 +6,7 @@
 class FieldCollectionItemEntity extends Entity {
 
   /**
-   * Field collection field info.
+   * Field Collection field info.
    *
    * @var array
    */
@@ -55,7 +55,7 @@ class FieldCollectionItemEntity extends Entity {
   public $item_id;
 
   /**
-   * Field collection revision ID.
+   * Field Collection revision ID.
    *
    * @var integer
    */
@@ -399,7 +399,7 @@ class FieldCollectionItemEntity extends Entity {
   /**
    * Determines whether this field collection item revision is in use.
    *
-   * Field collection items may be contained in from non-default host entity
+   * Field Collection items may be contained in from non-default host entity
    * revisions. If the field collection item does not appear in the default
    * host entity revision, the item is actually not used by default and so
    * marked as 'archived'.

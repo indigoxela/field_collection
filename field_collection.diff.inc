@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Provide diff field functions for the Field collection module.
+ * Provide diff field functions for the Field Collection.
  */
 
 /**
- * Diff field callback for parsing Field collection fields comparative values.
+ * Diff field callback for parsing Field Collection fields comparative values.
  */
 function field_collection_field_diff_view($items, $context) {
   $diff_items = array();

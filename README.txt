@@ -43,7 +43,7 @@ CONFIGURATION
    the usual "Manage fields" interface provided by the "field ui" project of
    Drupal, e.g "Admin -> Structure -> Content types -> Article -> Manage fields"
 
- * Then go to "Admin -> Structure-> Field collection" to define some fields for
+ * Then go to "Admin -> Structure-> Field Collection" to define some fields for
    the created field collection.
 
  * By the default, the field collection is not shown during editing of the host
@@ -58,7 +58,7 @@ CONFIGURATION
 USING FIELD COLLECTION WITH ENTITY TRANSLATION
 -----------
 
-  * Field collection items must be selected as a translatable entity type at
+  * Field Collection items must be selected as a translatable entity type at
     Admin -> Config -> Regional -> Entity Translation.
 
   * The common use case is to leave the field collection field untranslatable

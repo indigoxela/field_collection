@@ -8,7 +8,7 @@
 // TODO: fix being embedded in a host with revisions.
 
 /**
- * Field collection item view page.
+ * Field Collection item view page.
  */
 function field_collection_item_page_view($field_collection_item) {
   // @todo: Set breadcrumb including the host.
