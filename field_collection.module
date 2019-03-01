@@ -1836,6 +1836,17 @@ function field_collection_item_get_host_entity($item) {
 }
 
 /**
+ * Entity property info getter callback for the host entity property.
+ */
+function field_collection_item_get_specific_type_host_entity($item, array $options, $name) {
+  // These properties' machine names have the form "host_entity_TYPE".
+  if (substr($name, 0, 12) !== 'host_entity_') {
+    return NULL;
+  }
+  return $item->hostEntityType() === substr($name, 12) ? $item->hostEntity() : NULL;
+}
+
+/**
  * Entity property info getter callback for the field collection items.
  *
  * Like entity_metadata_field_property_get(), but additionally supports getting
