@@ -1503,6 +1503,12 @@ function field_collection_remove_submit($form, &$form_state) {
  */
 function field_collection_field_get_entity(&$item, $field_name = NULL) {
   if (isset($item['entity']) && ($item['entity']->entityType() == 'field_collection_item')) {
+    if (count($item) > 1) {
+      // If $item contains more thing than 'entity', then it is sent from VBO.
+      // We clone the object to avoid that the same field collection item of the
+      // faked object is attached to multiple host objects.
+      return clone($item['entity']);
+    }
     return $item['entity'];
   }
   elseif (isset($item['value'])) {
