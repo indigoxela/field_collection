@@ -1310,8 +1310,9 @@ function field_collection_field_attach_form($entity_type, $entity, &$form, &$for
       // Remove blank form elements and force user to explicitly add a field
       // collection if both 'hide_initial_item' and 'hide_blank_items' are TRUE.
       if ($field['settings']['hide_initial_item']
-          && $field['settings']['hide_blank_items']
-          && field_collection_item_is_empty($form[$field_name][$element_langcode][0]['#entity'])) {
+        && $field['settings']['hide_blank_items']
+        && $form[$field_name][$element_langcode][0]['#entity'] instanceof FieldCollectionItemEntity
+        && field_collection_item_is_empty($form[$field_name][$element_langcode][0]['#entity'])) {
 
         _field_collection_process_children_attached($form[$field_name][$element_langcode][0]);
         unset($form[$field_name][$element_langcode][0]);
