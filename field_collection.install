@@ -63,6 +63,12 @@ function field_collection_schema() {
       ),
     ),
   );
+
+  if (module_exists('entitycache')) {
+    $schema['cache_entity_field_collection_item'] = drupal_get_schema_unprocessed('system', 'cache');
+    $schema['cache_entity_field_collection_item']['description'] = 'Cache table used to store field_collection_item entity records.';
+  }
+  
   return $schema;
 }
 
