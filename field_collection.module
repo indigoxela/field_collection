@@ -883,6 +883,75 @@ function field_collection_field_formatter_settings_summary($field, $instance, $v
   return implode('<br>', $output);
 }
 
+function field_collection_entity_preload($entities, $langcode, &$items, $fields) {
+  static $local_entity_cache = array();
+
+  $fc_ids = array();
+
+  // Collect every possible term attached to any of the fieldable entities.
+  foreach ($entities as $id => $entity) {
+    foreach ($items[$id] as $delta => $item) {
+
+      // Check if this item is in our local entity cache
+      if (isset($local_entity_cache[$item['value']])) {
+        $items[$id][$delta]['field_collection'] = $local_entity_cache[$item['value']];
+        continue;
+      }
+
+      // Force the array key to prevent duplicates.
+      $fc_ids[$item['value']] = $item['value'];
+    }
+  }
+
+  if ($fc_ids) {
+    $new_entities = array();
+    $terms = field_collection_item_load_multiple($fc_ids);
+
+    // Iterate through the fieldable entities again to attach the loaded
+    // field collection data.
+    foreach ($entities as $id => $entity) {
+      $rekey = FALSE;
+
+      foreach ($items[$id] as $delta => $item) {
+        // Check whether the field collection field instance value could be loaded.
+        if (isset($terms[$item['value']])) {
+          // Replace the instance value with the term data.
+          $e = $terms[$item['value']];
+          $local_entity_cache[$item['value']] = $e;
+          $items[$id][$delta]['field_collection'] = $e;
+
+	  foreach ($fields as $field_name => $field) {
+            if (isset($e->$field_name)) {
+              $field_data = $e->$field_name;
+              if (isset($field_data[$langcode])) {
+                $new_entities[$e->item_id] = $e->item_id;
+                $items[$e->item_id] = $field_data[$langcode];
+              }
+            }
+          }
+        }
+        // Otherwise, unset the instance value, since the field colletion entity does not exist.
+        else {
+          unset($items[$id][$delta]);
+          $rekey = TRUE;
+        }
+      }
+
+      if ($rekey) {
+        // Rekey the items array.
+        $items[$id] = array_values($items[$id]);
+      }
+    }
+
+    field_collection_entity_preload($new_entities, $langcode, $items, $fields);
+  }
+}
+
+function field_collection_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  $fields = field_read_fields(array('type' => 'field_collection'));
+  field_collection_entity_preload($entities, $langcode, $items, $fields);
+}
+
 /**
  * Implements hook_field_formatter_view().
  */
