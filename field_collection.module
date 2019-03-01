@@ -1914,6 +1914,15 @@ function field_collection_field_property_set($entity, $name, $value, $langcode, 
  * Implements hook_devel_generate().
  */
 function field_collection_devel_generate($object, $field, $instance, $bundle) {
+  if (field_behaviors_widget('multiple values', $instance) == FIELD_BEHAVIOR_CUSTOM) {
+    return devel_generate_multiple('_field_collection_devel_generate', $object, $field, $instance, $bundle);
+  }
+  else {
+    return _field_collection_devel_generate($object, $field, $instance, $bundle);
+  }
+}
+
+function _field_collection_devel_generate($object, $field, $instance, $bundle) {
   // Create a new field collection object and add fake data to its fields.
   $field_collection = entity_create('field_collection_item', array('field_name' => $field['field_name']));
   $field_collection->language = $object->language;
