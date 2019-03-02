@@ -512,9 +512,11 @@ class FieldCollectionItemEntity extends Entity {
       if ($fields[$translatable_field]['translatable'] == 1) {
         foreach ($target_languages as $langcode) {
           if (isset($this->{$translatable_field}[$source_language])) {
-            //Source (translatable_field) is set, therefore continue processing.
-            if(!isset($this->{$translatable_field}[$langcode])) {
-              //Destination (translatable_field) is not set, therefore safe to copy the translation.
+            // Source (translatable_field) is set, therefore continue
+            // processing.
+            if (!isset($this->{$translatable_field}[$langcode])) {
+              // Destination (translatable_field) is not set, therefore safe to
+              // copy the translation.
               $this->{$translatable_field}[$langcode] = $this->{$translatable_field}[$source_language];
             }
           }
@@ -639,4 +641,5 @@ class FieldCollectionItemEntity extends Entity {
   public function __wakeup() {
     $this->setUp();
   }
+
 }

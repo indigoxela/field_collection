@@ -184,7 +184,11 @@ function field_collection_item_load($item_id, $reset = FALSE) {
  * Loads a field collection revision.
  *
  * @param $revision_id
- *   The field collection revision ID.
+ *   The id of the revision to load.
+ *
+ * @return
+ *   The entity object, or FALSE if there is no entity with the given revision
+ *   id.
  */
 function field_collection_item_revision_load($revision_id) {
   return entity_revision_load('field_collection_item', $revision_id);
@@ -192,6 +196,16 @@ function field_collection_item_revision_load($revision_id) {
 
 /**
  * Loads field collection items.
+ *
+ * @param $ids
+ *   An array of entity IDs, or FALSE to load all entities.
+ * @param $conditions
+ *   (deprecated) An associative array of conditions on the base table, where
+ *   the keys are the database fields and the values are the values those
+ *   fields must have. Instead, it is preferable to use EntityFieldQuery to
+ *   retrieve a list of entity IDs loadable by this function.
+ * @param $reset
+ *   Whether to reset the internal cache for the requested entity type.
  *
  * @return
  *   An array of field collection item entities.
@@ -299,6 +313,8 @@ function field_collection_menu_alter(&$items) {
 
 /**
  * Menu title callback.
+ *
+ * return string
  */
 function field_collection_admin_page_title($field_name) {
   return t('Field collection @field_name', array('@field_name' => $field_name));
@@ -306,6 +322,8 @@ function field_collection_admin_page_title($field_name) {
 
 /**
  * Implements hook_admin_paths().
+ *
+ * @return array
  */
 function field_collection_admin_paths() {
   if (variable_get('node_admin_theme')) {
@@ -339,6 +357,7 @@ function field_collection_permission() {
  *   items is determined.
  * @param $account
  *   The user to check for. Leave it to NULL to check for the global user.
+ *
  * @return boolean
  *   Whether access is allowed or not.
  */
@@ -2134,15 +2153,15 @@ function field_collection_feeds_set_target($source, $entity, $target, $value, $m
       $field_collection_item = null;
 
       // FC is already set on host entity.
-      if (isset($field['und'][$delta]['entity'])) {
-        $field_collection_item = $field['und'][$delta]['entity'];
+      if (isset($field[LANGUAGE_NONE][$delta]['entity'])) {
+        $field_collection_item = $field[LANGUAGE_NONE][$delta]['entity'];
       }
       // FC is on host entity, we have FC item_id, but FC is not loaded.
-      elseif (isset($field['und'][$delta]['value'])) {
-        $field_collection_item = field_collection_item_load($field['und'][$delta]['value']);
+      elseif (isset($field[LANGUAGE_NONE][$delta]['value'])) {
+        $field_collection_item = field_collection_item_load($field[LANGUAGE_NONE][$delta]['value']);
 
         // Zero out field so that we don't just keep accumulating values.
-        unset($field_collection_item->{$sub_target}['und'] );
+        unset($field_collection_item->{$sub_target}[LANGUAGE_NONE] );
       }
 
       // Host entity does not have any attached FCs yet.
@@ -2195,7 +2214,7 @@ function field_collection_feeds_set_target($source, $entity, $target, $value, $m
 
       // No need to save the field collection here. Just wait until the node is saved.
       // If we save the FC here we get a huge performance degregation.
-      $field['und'][$delta]['entity'] = $field_collection_item;
+      $field[LANGUAGE_NONE][$delta]['entity'] = $field_collection_item;
 
       // Break when only hitting the max delta.
       if ($info['cardinality'] == $delta) {
@@ -2269,8 +2288,8 @@ function field_collection_file_feeds_set_target($source, $entity, $target, $valu
       watchdog('feeds', check_plain($e->getMessage()));
     }
     if ($file) {
-      $field['und'][$i] = (array)$file;
-      $field['und'][$i]['display'] = 1; // @todo: Figure out how to properly populate this field.
+      $field[LANGUAGE_NONE][$i] = (array)$file;
+      $field[LANGUAGE_NONE][$i]['display'] = 1; // @todo: Figure out how to properly populate this field.
       if ($info['cardinality'] == 1) {
         break;
       }
@@ -2316,11 +2335,11 @@ function field_collection_feeds_presave(FeedsSource $source, $entity, $item, $en
         }
 
         if (isset($entity->{$fc_name})) {
-          foreach ($entity->{$fc_name}['und'] as $delta => $fc_unloaded) {
+          foreach ($entity->{$fc_name}[LANGUAGE_NONE] as $delta => $fc_unloaded) {
 
             // If an FC is not loaded, we don't want it. Unset it so it won't save.
-            if (!isset($entity->{$fc_name}['und'][$delta]['entity'])) {
-              unset($entity->{$fc_name}['und'][$delta]);
+            if (!isset($entity->{$fc_name}[LANGUAGE_NONE][$delta]['entity'])) {
+              unset($entity->{$fc_name}[LANGUAGE_NONE][$delta]);
             }
           }
 

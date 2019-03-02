@@ -83,10 +83,10 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
   /**
    * Import a single field collection item.
    *
-   * @param $collection
+   * @param \stdClass $collection
    *   Collection object to build. Pre-filled with any fields mapped in the
    *   migration.
-   * @param $row
+   * @param \stdClass $row
    *   Raw source data object - passed through to prepare/complete handlers.
    *
    * @return array|bool

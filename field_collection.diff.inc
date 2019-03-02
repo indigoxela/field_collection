@@ -25,7 +25,7 @@ function field_collection_field_render_revision($item, $context) {
   $view_mode = $context['view_mode'];
   $entity = entity_revision_load($entity_type, $item['revision_id']);
 
-  if(empty($entity)) {
+  if (empty($entity)) {
     return array();
   }
 
@@ -50,7 +50,8 @@ function field_collection_field_render_revision($item, $context) {
 
   $result = array();
   foreach ($instances as $instance) {
-    // Any view mode is supported in relation to hiding fields, but only if selected.
+    // Any view mode is supported in relation to hiding fields, but only if
+    // selected.
     if ($actual_mode && $instance['display'][$actual_mode]['type'] == 'hidden') {
       continue;
     }
