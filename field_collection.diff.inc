@@ -68,13 +68,24 @@ function field_collection_field_render_revision($item, $context) {
       $field_context['settings'] = diff_get_field_settings($field_context);
       $field_context['display'] = $instance['display'][$actual_mode];
 
+      $old_items = array();
+      $new_items = array();
+      if (!empty($entity->{$field_name}[$langcode])) {
+        $new_items = $entity->{$field_name}[$langcode];
+      }
+
+      $func = $field['module'] . '_field_diff_view_prepare';
+      if (function_exists($func)) {
+        $func($old_items, $new_items, $field_context);
+      }
+
       $func = $field['module'] . '_field_diff_view';
       if (!function_exists($func)) {
         $func = 'diff_field_diff_view';
       }
 
-      if (!empty($entity->{$field_name}[$langcode])) {
-        $raw_values = $func($entity->{$field_name}[$langcode], $field_context);
+      if (!empty($new_items)) {
+        $raw_values = $func($new_items, $field_context);
         $values = array();
         foreach ($raw_values as $raw_value) {
           $values[] = is_array($raw_value) ? implode(", ", $raw_value) : $raw_value;
