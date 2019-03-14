@@ -2079,7 +2079,7 @@ function field_collection_feeds_processor_targets_alter(&$targets, $entity_type,
     $path = drupal_get_path('module', 'feeds') . '/mappers';
     $files = drupal_system_listing('/.*\.inc$/', $path, 'name', 0);
     foreach ($files as $file) {
-      if (strstr($file->uri, '/mappers/')) {
+      if (strpos($file->uri, '/mappers/') !== FALSE) {
         require_once (DRUPAL_ROOT . '/' . $file->uri);
       }
     }
