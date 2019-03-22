@@ -220,7 +220,7 @@ class FieldCollectionItemEntity extends Entity {
    *   The entity type of the entity the field collection is attached to.
    */
   public function updateHostEntity($entity, $host_entity_type = NULL) {
-    $this->fetchHostDetails();
+    $this->fetchHostDetails($entity);
     // If it isn't possible to retrieve hostEntityType due to the fact that it's
     // not saved in the DB yet then fill in info about the hostEntity manually.
     // This happens when creating a new revision of a field collection entity
@@ -300,13 +300,28 @@ class FieldCollectionItemEntity extends Entity {
     }
   }
 
-  protected function fetchHostDetails() {
+  /**
+   * Collects info about the field collection's host.
+   *
+   * @param $hostEntity
+   *   The host entity object. (optional)
+   */
+  protected function fetchHostDetails($hostEntity = NULL) {
     if (!isset($this->hostEntityId) || (!$this->hostEntityId && $this->hostEntityRevisionId)) {
       if ($this->item_id) {
         // For saved field collections, query the field data to determine the
         // right host entity.
         $query = new EntityFieldQuery();
-        $query->fieldCondition($this->fieldInfo(), 'revision_id', $this->revision_id);
+        $field_info = $this->fieldInfo();
+        $query->fieldCondition($field_info, 'revision_id', $this->revision_id);
+        if ($hostEntity) {
+          $entity_type = key($field_info['bundles']);
+          $bundle = current($field_info['bundles'][$entity_type]);
+          $query->entityCondition('entity_type', $entity_type);
+          $query->entityCondition('entity_id', $hostEntity->nid);
+          $query->entityCondition('bundle', $bundle);
+          $query->propertyCondition('language', $hostEntity->language);
+        }
         $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
         if (!$this->isInUse()) {
           $query->age(FIELD_LOAD_REVISION);
