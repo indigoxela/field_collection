@@ -1938,7 +1938,7 @@ function field_collection_field_property_set($entity, $name, $value, $langcode, 
         $items[$delta][$columns[0]] = $value->item_id;
         $items[$delta][$columns[1]] = $value->revision_id;
       }
-      elseif (is_array($value) && isset($value['value']) && isset($value['revision_id'])) {
+      elseif (isset($value['value'], $value['revision_id']) && is_array($value)) {
         $items[$delta][$columns[0]] = $value['value'];
         $items[$delta][$columns[1]] = $value['revision_id'];
       }
