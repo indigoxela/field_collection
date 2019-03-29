@@ -686,6 +686,23 @@ function field_collection_field_delete($entity_type, $entity, $field, $instance,
 }
 
 /**
+ * Implements hook_field_load().
+ *
+ * Invokes the load hooks for the fields contained in new, unsaved field
+ * collection items. This allows images inside a field collection item to be
+ * seen on a node's preview page before it's saved.
+ */
+function field_collection_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  foreach ($items as &$each_item) {
+    foreach ($each_item as &$each_field_collection_item) {
+      if (!empty($each_field_collection_item['entity'])) {
+        _field_invoke_multiple('load', 'field_collection_item', array(NULL => &$each_field_collection_item['entity']));
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_field_delete_revision().
  */
 function field_collection_field_delete_revision($entity_type, $entity, $field, $instance, $langcode, &$items) {
@@ -1004,7 +1021,17 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
 
       $view_mode = !empty($display['settings']['view_mode']) ? $display['settings']['view_mode'] : 'full';
       foreach ($items as $delta => $item) {
-        if ($field_collection = field_collection_field_get_entity($item)) {
+        // Existing field collections should be loaded without cache so that
+        // node Preview will work for both existing nodes and new ones.
+        if (isset($item['entity']->item_id)) {
+          // Load without cache.
+          $field_collection = field_collection_item_load($item['entity']->item_id, TRUE);
+        }
+        else {
+          $field_collection = field_collection_field_get_entity($item);
+        }
+
+        if ($field_collection) {
           $element[$delta]['entity'] = $field_collection->view($view_mode, $langcode);
           $element[$delta]['#theme_wrappers'] = array('field_collection_view');
           $element[$delta]['#attributes']['class'][] = 'field-collection-view';
