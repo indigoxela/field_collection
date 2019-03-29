@@ -40,7 +40,7 @@ function field_collection_field_render_revision($item, $context) {
     $field_context['custom_settings'] = FALSE;
   }
   $view_mode_settings = field_view_mode_settings($entity_type, $bundle_name);
-  $actual_mode = (!empty($view_mode_settings[$view_mode]['custom_settings'])) ? $view_mode : 'default';
+  $actual_mode = !empty($view_mode_settings[$view_mode]['custom_settings']) ? $view_mode : 'default';
   if (!isset($field_context['custom_settings'])) {
     $field_context['custom_settings'] = $actual_mode && $actual_mode == $view_mode;
   }

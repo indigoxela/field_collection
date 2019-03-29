@@ -1553,7 +1553,7 @@ function field_collection_field_get_entity(&$item, $field_name = NULL) {
       // If $item contains more thing than 'entity', then it is sent from VBO.
       // We clone the object to avoid that the same field collection item of the
       // faked object is attached to multiple host objects.
-      return clone($item['entity']);
+      return clone $item['entity'];
     }
     return $item['entity'];
   }
@@ -2104,7 +2104,7 @@ function field_collection_feeds_processor_targets_alter(&$targets, $entity_type,
     $files = drupal_system_listing('/.*\.inc$/', $path, 'name', 0);
     foreach ($files as $file) {
       if (strpos($file->uri, '/mappers/') !== FALSE) {
-        require_once (DRUPAL_ROOT . '/' . $file->uri);
+        require_once DRUPAL_ROOT . '/' . $file->uri;
       }
     }
   }
