@@ -139,7 +139,8 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
         if ('field_' != substr($field, 0, 6)) {
           continue;
         }
-        elseif (property_exists($entity_old, $field) && !property_exists($collection, $field)) {
+
+        if (property_exists($entity_old, $field) && !property_exists($collection, $field)) {
           $entity->$field = $entity_old->$field;
         }
       }
@@ -159,9 +160,8 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
       }
       return array($entity->item_id);
     }
-    else {
-      return FALSE;
-    }
+
+    return FALSE;
   }
 
   /**

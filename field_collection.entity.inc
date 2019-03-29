@@ -145,7 +145,8 @@ class FieldCollectionItemEntity extends Entity {
       if ($new_label = module_invoke_all('field_collection_item_label', $this, $host, $field, $label)) {
         return array_pop($new_label);
       }
-      elseif ($field['cardinality'] == 1) {
+
+      if ($field['cardinality'] == 1) {
         return $label;
       }
       elseif ($this->item_id) {
@@ -369,7 +370,8 @@ class FieldCollectionItemEntity extends Entity {
               $this->langcode = $langcode;
               return $delta;
             }
-            elseif (isset($item['entity']) && $item['entity'] === $this) {
+
+            if (isset($item['entity']) && $item['entity'] === $this) {
               $this->langcode = $langcode;
               return $delta;
             }
@@ -386,7 +388,8 @@ class FieldCollectionItemEntity extends Entity {
                 $this->langcode = $langcode;
                 return $delta;
               }
-              elseif (isset($item['entity']) && $item['entity'] === $this) {
+
+              if (isset($item['entity']) && $item['entity'] === $this) {
                 $this->langcode = $langcode;
                 return $delta;
               }
@@ -462,30 +465,29 @@ class FieldCollectionItemEntity extends Entity {
     if ($skip_host_save) {
       return entity_get_controller($this->entityType)->save($this);
     }
-    else {
-      $host_entity = $this->hostEntity();
-      if (!$host_entity) {
-        throw new Exception('Unable to save a field collection item without a valid reference to a host entity.');
-      }
-      // If this is creating a new revision, also do so for the host entity.
-      if (!empty($this->revision) || !empty($this->is_new_revision)) {
-        $host_entity->revision = TRUE;
-        if (!empty($this->default_revision)) {
-          entity_revision_set_default($this->hostEntityType, $host_entity);
-        }
-      }
-      // Set the host entity reference, so the item will be saved with the host.
-      // @see field_collection_field_presave()
-      $delta = $this->delta();
-      if (isset($delta)) {
-        $host_entity->{$this->field_name}[$this->langcode()][$delta] = array('entity' => $this);
-      }
-      else {
-        $host_entity->{$this->field_name}[$this->langcode()][] = array('entity' => $this);
-      }
 
-      return entity_save($this->hostEntityType, $host_entity);
+    $host_entity = $this->hostEntity();
+    if (!$host_entity) {
+      throw new Exception('Unable to save a field collection item without a valid reference to a host entity.');
     }
+    // If this is creating a new revision, also do so for the host entity.
+    if (!empty($this->revision) || !empty($this->is_new_revision)) {
+      $host_entity->revision = TRUE;
+      if (!empty($this->default_revision)) {
+        entity_revision_set_default($this->hostEntityType, $host_entity);
+      }
+    }
+    // Set the host entity reference, so the item will be saved with the host.
+    // @see field_collection_field_presave()
+    $delta = $this->delta();
+    if (isset($delta)) {
+      $host_entity->{$this->field_name}[$this->langcode()][$delta] = array('entity' => $this);
+    }
+    else {
+      $host_entity->{$this->field_name}[$this->langcode()][] = array('entity' => $this);
+    }
+
+    return entity_save($this->hostEntityType, $host_entity);
   }
 
   /**

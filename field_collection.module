@@ -734,7 +734,8 @@ function field_collection_field_is_empty($item, $field) {
   if (!empty($item['value'])) {
     return FALSE;
   }
-  elseif (isset($item['entity'])) {
+
+  if (isset($item['entity'])) {
     return field_collection_item_is_empty($item['entity']);
   }
   return TRUE;
@@ -1213,7 +1214,8 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
         $recursion--;
         return FALSE;
       }
-      elseif (field_collection_hide_blank_items($field) && $field_state['items_count'] == 0) {
+
+      if (field_collection_hide_blank_items($field) && $field_state['items_count'] == 0) {
         // We show one item, so also specify that as item count. So when the
         // add button is pressed the item count will be 2 and we show two items.
         $field_state['items_count'] = 1;
@@ -1557,7 +1559,8 @@ function field_collection_field_get_entity(&$item, $field_name = NULL) {
     }
     return $item['entity'];
   }
-  elseif (isset($item['value'])) {
+
+  if (isset($item['value'])) {
     // By default always load the default revision, so caches get used.
     $entity = field_collection_item_load($item['value']);
     if ($entity && $entity->revision_id != $item['revision_id']) {
@@ -1962,9 +1965,8 @@ function field_collection_devel_generate($object, $field, $instance, $bundle) {
   if (field_behaviors_widget('multiple values', $instance) == FIELD_BEHAVIOR_CUSTOM) {
     return devel_generate_multiple('_field_collection_devel_generate', $object, $field, $instance, $bundle);
   }
-  else {
-    return _field_collection_devel_generate($object, $field, $instance, $bundle);
-  }
+
+  return _field_collection_devel_generate($object, $field, $instance, $bundle);
 }
 
 function _field_collection_devel_generate($object, $field, $instance, $bundle) {
