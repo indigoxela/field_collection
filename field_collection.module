@@ -1569,7 +1569,8 @@ function field_collection_field_get_entity(&$item, $field_name = NULL) {
     }
     return $entity;
   }
-  elseif (!isset($item['entity']) && isset($field_name)) {
+
+  if (!isset($item['entity']) && isset($field_name)) {
     $item['entity'] = entity_create('field_collection_item', array('field_name' => $field_name));
     return $item['entity'];
   }

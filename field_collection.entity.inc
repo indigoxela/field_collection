@@ -149,12 +149,12 @@ class FieldCollectionItemEntity extends Entity {
       if ($field['cardinality'] == 1) {
         return $label;
       }
-      elseif ($this->item_id) {
+
+      if ($this->item_id) {
         return t('!instance_label @count', array('!instance_label' => $label, '@count' => $this->delta() + 1));
       }
-      else {
-        return t('New !instance_label', array('!instance_label' => $label));
-      }
+
+      return t('New !instance_label', array('!instance_label' => $label));
     }
     return t('Unconnected field collection item');
   }
