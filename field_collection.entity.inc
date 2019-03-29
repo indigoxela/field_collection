@@ -526,14 +526,13 @@ class FieldCollectionItemEntity extends Entity {
     foreach ($fields_instances as $translatable_field) {
       if ($fields[$translatable_field]['translatable'] == 1) {
         foreach ($target_languages as $langcode) {
-          if (isset($this->{$translatable_field}[$source_language])) {
-            // Source (translatable_field) is set, therefore continue
-            // processing.
-            if (!isset($this->{$translatable_field}[$langcode])) {
-              // Destination (translatable_field) is not set, therefore safe to
-              // copy the translation.
-              $this->{$translatable_field}[$langcode] = $this->{$translatable_field}[$source_language];
-            }
+          // Source (translatable_field) is set, therefore continue
+          // processing.
+          if (isset($this->{$translatable_field}[$source_language])
+            && !isset($this->{$translatable_field}[$langcode])) {
+            // Destination (translatable_field) is not set, therefore safe to
+            // copy the translation.
+            $this->{$translatable_field}[$langcode] = $this->{$translatable_field}[$source_language];
           }
         }
         if ($source_language == LANGUAGE_NONE && count($this->{$translatable_field}) > 1) {

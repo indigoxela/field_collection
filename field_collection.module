@@ -707,10 +707,9 @@ function field_collection_field_load($entity_type, $entities, $field, $instances
  */
 function field_collection_field_delete_revision($entity_type, $entity, $field, $instance, $langcode, &$items) {
   foreach ($items as $item) {
-    if (!empty($item['revision_id'])) {
-      if ($entity = field_collection_item_revision_load($item['revision_id'])) {
-        $entity->deleteRevision(TRUE);
-      }
+    if (!empty($item['revision_id'])
+      && $entity = field_collection_item_revision_load($item['revision_id'])) {
+      $entity->deleteRevision(TRUE);
     }
   }
 }
@@ -2070,20 +2069,18 @@ function field_collection_entity_translation_insert($entity_type, $entity, $tran
         if (!empty($value[$language])) {
           $source_items = !empty($entity->{$field_name}[$source_language]) ? field_collection_field_item_to_ids($entity->{$field_name}[$source_language]) : array();
           foreach ($value[$language] as $delta => $field_value) {
-            if (!isset($field_value['entity'])) {
-              if ($fc_entity = field_collection_field_get_entity($field_value)) {
-                // Check if this field collection item belongs to the source language
-                if (in_array($fc_entity->item_id, $source_items)) {
-                  // Clone the field collection item
-                  $new_fc_entity = clone $fc_entity;
-                  $new_fc_entity->item_id = NULL;
-                  $new_fc_entity->revision_id = NULL;
-                  $new_fc_entity->is_new = TRUE;
+            // Check if this field collection item belongs to the source language
+            if (!isset($field_value['entity'])
+              && ($fc_entity = field_collection_field_get_entity($field_value))
+              && in_array($fc_entity->item_id, $source_items)) {
+              // Clone the field collection item
+              $new_fc_entity = clone $fc_entity;
+              $new_fc_entity->item_id = NULL;
+              $new_fc_entity->revision_id = NULL;
+              $new_fc_entity->is_new = TRUE;
 
-                  // Set the new entity for saving it later
-                  $entity->{$field_name}[$language][$delta]['entity'] = $new_fc_entity;
-                }
-              }
+              // Set the new entity for saving it later
+              $entity->{$field_name}[$language][$delta]['entity'] = $new_fc_entity;
             }
           }
         }

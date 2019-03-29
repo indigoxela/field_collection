@@ -1013,12 +1013,11 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
       $field = field_info_field($field_name);
       $field_value = array();
       // Copy the value of the translated field if it's translatable.
-      if ($field['translatable']) {
-        if (isset($node->{$field_name}[$node->language])) {
-          $field_value = $node->{$field_name}[$source_langcode];
-          $values[$field_name][$langcode] = $field_value;
-          $node->{$field_name}[$langcode] = $field_value;
-        }
+      if ($field['translatable']
+        && isset($node->{$field_name}[$node->language])) {
+        $field_value = $node->{$field_name}[$source_langcode];
+        $values[$field_name][$langcode] = $field_value;
+        $node->{$field_name}[$langcode] = $field_value;
       }
     }
 
