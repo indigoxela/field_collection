@@ -234,7 +234,7 @@ function field_collection_menu() {
   foreach (field_info_fields() as $field) {
     if ($field['type'] == 'field_collection') {
       $path = field_collection_field_get_path($field);
-      $count = count(explode('/', $path));
+      $count = substr_count($path, '/') + 1;
 
       $items[$path . '/%field_collection_item'] = array(
         'page callback' => 'field_collection_item_page_view',
