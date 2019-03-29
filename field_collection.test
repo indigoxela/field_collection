@@ -70,7 +70,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     if (!isset($message)) {
       $message = $text;
     }
-    return $this->assertTrue(array_search($text, $_SESSION['entity_crud_hook_test']) !== FALSE, $message, $group);
+    return $this->assertTrue(in_array($text, $_SESSION['entity_crud_hook_test']), $message, $group);
   }
 
   /**
@@ -95,7 +95,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     if (!isset($message)) {
       $message = $text;
     }
-    return $this->assertFalse(array_search($text, $_SESSION['entity_crud_hook_test']) !== FALSE, $message, $group);
+    return $this->assertFalse(in_array($text, $_SESSION['entity_crud_hook_test']), $message, $group);
   }
 
   /**
