@@ -448,7 +448,7 @@ class FieldCollectionItemEntity extends Entity {
   public function save($skip_host_save = FALSE) {
     // Make sure we have a host entity during creation.
     if (!empty($this->is_new) && !(isset($this->hostEntityId) || isset($this->hostEntity) || isset($this->hostEntityRevisionId))) {
-      throw new Exception("Unable to create a field collection item without a given host entity.");
+      throw new Exception('Unable to create a field collection item without a given host entity.');
     }
 
     // Copy the values of translatable fields for a new field collection item.
@@ -465,7 +465,7 @@ class FieldCollectionItemEntity extends Entity {
     else {
       $host_entity = $this->hostEntity();
       if (!$host_entity) {
-        throw new Exception("Unable to save a field collection item without a valid reference to a host entity.");
+        throw new Exception('Unable to save a field collection item without a valid reference to a host entity.');
       }
       // If this is creating a new revision, also do so for the host entity.
       if (!empty($this->revision) || !empty($this->is_new_revision)) {

@@ -88,10 +88,10 @@ function field_collection_field_render_revision($item, $context) {
         $raw_values = $func($new_items, $field_context);
         $values = array();
         foreach ($raw_values as $raw_value) {
-          $values[] = is_array($raw_value) ? implode(", ", $raw_value) : $raw_value;
+          $values[] = is_array($raw_value) ? implode(', ', $raw_value) : $raw_value;
         }
 
-        $result[] = check_plain($instance['label'] . ': ' . implode(", ", $values));
+        $result[] = check_plain($instance['label'] . ': ' . implode(', ', $values));
       }
     }
   }

@@ -2217,19 +2217,19 @@ function field_collection_feeds_set_target($source, $entity, $target, $value, $m
         }
 
         // Check for a limit and force that limit.
-        if ($info["cardinality"] !== "-1") {
-          $value[$delta] = array_slice($value[$delta], 0, $info["cardinality"]);
+        if ($info['cardinality'] !== '-1') {
+          $value[$delta] = array_slice($value[$delta], 0, $info['cardinality']);
         }
 
         // HiJack the file callback so we can make it work.
-        if ($callback == "file_feeds_set_target") {
-          $callback = "field_collection_file_feeds_set_target";
+        if ($callback == 'file_feeds_set_target') {
+          $callback = 'field_collection_file_feeds_set_target';
         }
 
         // Allow altering with many parameters. Cannot use drupal_alter here.
-        $implements = module_implements("sub_target_pre_callback_parse");
+        $implements = module_implements('sub_target_pre_callback_parse');
         foreach ($implements as $module_name) {
-          $hook = $module_name . "_" . "sub_target_pre_callback_parse";
+          $hook = $module_name . '_' . 'sub_target_pre_callback_parse';
           $hook($target, $sub_target, $entity, $field, $field_collection_item, $value[$delta]);
         }
 
@@ -2286,7 +2286,7 @@ function field_collection_file_feeds_set_target($source, $entity, $target, $valu
     return;
   }
 
-  $entity_type = "field_collection_item";
+  $entity_type = 'field_collection_item';
   $bundle = $entity->field_name;
 
   // Determine file destination.

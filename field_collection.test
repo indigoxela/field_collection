@@ -344,15 +344,15 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     $this->drupalPost($path, $edit, t('Save'));
     $this->assertText(t('The changes have been saved.'), 'Field collection saved.');
 
-    $this->assertText($edit['field_text[und][0][value]'], "Added field value is shown.");
+    $this->assertText($edit['field_text[und][0][value]'], 'Added field value is shown.');
 
     $edit['field_text[und][0][value]'] = $this->randomName();
     $this->drupalPost('field-collection/field-test-collection/1/edit', $edit, t('Save'));
     $this->assertText(t('The changes have been saved.'), 'Field collection saved.');
-    $this->assertText($edit['field_text[und][0][value]'], "Field collection has been edited.");
+    $this->assertText($edit['field_text[und][0][value]'], 'Field collection has been edited.');
 
     $this->drupalGet('field-collection/field-test-collection/1');
-    $this->assertText($edit['field_text[und][0][value]'], "Field collection can be viewed.");
+    $this->assertText($edit['field_text[und][0][value]'], 'Field collection can be viewed.');
 
     // Add further 3 items, so we have reached 4 == maxium cardinality.
     $this->drupalPost($path, $edit, t('Save'));
