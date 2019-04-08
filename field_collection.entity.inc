@@ -599,7 +599,7 @@ class FieldCollectionItemEntity extends Entity {
         entity_get_controller('field_collection_item')->resetCache(array($this->item_id));
         entity_revision_delete('field_collection_item', $this->revision_id);
       }
-      if (!$row && !isset($this->hostEntity()->{$this->field_name}[$this->langcode()][$this->delta()])) {
+      else {
         // Delete if there is no existing revision or translation to be saved.
         $this->delete($skip_host_update);
       }
