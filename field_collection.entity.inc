@@ -649,13 +649,4 @@ class FieldCollectionItemEntity extends Entity {
     return drupal_map_assoc(array_keys($vars));
   }
 
-  /**
-   * Magic method to invoke setUp() on unserialization.
-   *
-   * @todo: Remove this once it appears in a released entity API module version.
-   */
-  public function __wakeup() {
-    $this->setUp();
-  }
-
 }
