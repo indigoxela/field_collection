@@ -153,7 +153,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     $this->clearHookMessages();
     node_delete($node->nid);
     $this->assertNoHookMessage('entity_crud_hook_test_entity_presave called for type node');
-    $this->assertTrue(entity_load('field_collection_item', FALSE) === array(), 'Field collections are deleted when the host is deleted.');
+    $this->assertTrue(entity_load('field_collection_item') === array(), 'Field collections are deleted when the host is deleted.');
 
     // Try deleting nodes with collections without any values.
     $node = $this->drupalCreateNode(array('type' => 'article'));
@@ -737,7 +737,7 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
 
       // Make sure we are not using a stale list.
       drupal_static_reset('language_list');
-      $languages = language_list('language');
+      $languages = language_list();
       $this->assertTrue(array_key_exists($langcode, $languages), t('Language was installed successfully.'));
 
       if (array_key_exists($langcode, $languages)) {
