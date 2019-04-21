@@ -1032,7 +1032,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
         }
 
         if ($field_collection) {
-          $element[$delta]['entity'] = $field_collection->view($view_mode, $langcode);
+          $element[$delta]['entity'] = $field_collection->view($view_mode);
           $element[$delta]['#theme_wrappers'] = array('field_collection_view');
           $element[$delta]['#attributes']['class'][] = 'field-collection-view';
           $element[$delta]['#attributes']['class'][] = 'clearfix';
@@ -1065,7 +1065,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
       $view_mode = !empty($display['settings']['view_mode']) ? $display['settings']['view_mode'] : 'full';
       foreach ($items as $delta => $item) {
         if ($field_collection = field_collection_field_get_entity($item)) {
-          $element[$delta]['entity'] = $field_collection->view($view_mode, $langcode);
+          $element[$delta]['entity'] = $field_collection->view($view_mode);
         }
       }
       break;
