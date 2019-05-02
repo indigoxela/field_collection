@@ -2343,7 +2343,8 @@ function field_collection_file_feeds_set_target($source, $entity, $target, $valu
  *   item, then NULL is passed.
  */
 function field_collection_feeds_presave(FeedsSource $source, $entity, $item, $entity_id) {
-  $mappings = $source->importer()->getConfig()['processor']['config']['mappings'];
+  $feed_config = $source->importer()->getConfig();
+  $mappings = $feed_config['processor']['config']['mappings'];
 
   // Only hook in when updating the entity.
   if (empty($entity_id)) {
