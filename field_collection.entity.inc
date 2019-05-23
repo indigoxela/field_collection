@@ -342,7 +342,7 @@ class FieldCollectionItemEntity extends Entity {
 
           if ($this->isInUse()) {
             $data_array_keys = array_keys($data);
-            $this->hostEntityId = $data ? $data_array_keys : FALSE;
+            $this->hostEntityId = $data ? end($data_array_keys) : FALSE;
             $this->hostEntityRevisionId = FALSE;
           }
           // If we are querying for revisions, we get the revision ID.
