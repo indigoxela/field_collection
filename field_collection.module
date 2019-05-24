@@ -1178,6 +1178,14 @@ function field_collection_field_widget_info() {
         'default value' => FIELD_BEHAVIOR_NONE,
       ),
     ),
+    'field_collection_sorter' => array(
+      'label' => t('Sortable only'),
+      'field types' => array('field_collection'),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+        'default value' => FIELD_BEHAVIOR_DEFAULT,
+      ),
+    ),
   );
 }
 
@@ -1318,6 +1326,66 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
 
       $recursion--;
       return $element;
+
+    case 'field_collection_sorter':
+      $elements = array();
+
+      $field_name = $field['field_name'];
+      $parents = $form['#parents'];
+      $field_state = field_form_get_state($parents, $field_name, $langcode, $form_state);
+      $count = $field_state['items_count'];
+
+      for ($delta = 0; $delta < $count; $delta++) {
+        $item_id = isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL;
+        $revision_id = isset($items[$delta]['revision_id']) ? $items[$delta]['revision_id'] : NULL;
+
+        // add a label component to visually identify this field collection item
+        $element['label'] = array();
+        if ($item_id) {
+          $item = field_collection_item_load($item_id);
+          $element['label']['#markup'] = $item ? $item->label() : $item_id;
+        }
+
+        // the field stored value (item_id) and revision_id values
+        // so we need hidden fields to represent them
+        $element['value'] = array(
+          '#type' => 'hidden',
+          '#default_value' => $item_id,
+        );
+        $element['revision_id'] = array(
+          '#type' => 'hidden',
+          '#default_value' => $revision_id,
+        );
+
+        // Input field for the delta (drag-n-drop reordering).
+        // We name the element '_weight' to avoid clashing with elements
+        // defined by widget.
+        $element['_weight'] = array(
+          '#type' => 'weight',
+          '#title' => t('Weight for row @number', array('@number' => $delta + 1)),
+          '#title_display' => 'invisible',
+          // Note: this 'delta' is the FAPI 'weight' element's property.
+          '#delta' => $count,
+          '#default_value' => isset($items[$delta]['_weight']) ? $items[$delta]['_weight'] : $delta,
+          '#weight' => 100,
+        );
+
+        $elements[$delta] = $element;
+      }
+
+      if ($elements) {
+        $elements += array(
+          '#theme' => 'field_multiple_value_form',
+          '#field_name' => $field['field_name'],
+          '#cardinality' => $field['cardinality'],
+          '#title' => check_plain($instance['label']),
+          '#required' => FALSE,
+          '#description' => field_filter_xss($instance['description']),
+          '#max_delta' => $count-1,
+        );
+      }
+
+      return $elements;
   }
 }
 
