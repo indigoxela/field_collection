@@ -226,7 +226,7 @@ class FieldCollectionItemEntity extends Entity {
     // not saved in the DB yet then fill in info about the hostEntity manually.
     // This happens when creating a new revision of a field collection entity
     // and it needs to relate to the new revision of the host entity.
-    if (!$this->hostEntityType) {
+    if (!$this->hostEntityType || isset($entity->tid)) {
       $this->hostEntityType = $host_entity_type;
       $this->hostEntity = $entity;
       list($this->hostEntityId, $this->hostEntityRevisionId) = entity_extract_ids($this->hostEntityType, $this->hostEntity);
@@ -246,7 +246,7 @@ class FieldCollectionItemEntity extends Entity {
     }
     else {
       $current_host = entity_revision_load($this->hostEntityType, $this->hostEntityRevisionId);
-      list($current_id) = entity_extract_ids($this->hostEntityType, $current_host);
+      list($current_id) = $current_host ? entity_extract_ids($this->hostEntityType, $current_host) : array($recieved_id);
     }
 
     if ($current_id == $recieved_id) {
