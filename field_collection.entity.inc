@@ -233,12 +233,11 @@ class FieldCollectionItemEntity extends Entity {
     }
     list($recieved_id) = entity_extract_ids($this->hostEntityType, $entity);
 
-    if ($this->isInUse() && !empty($this->hostEntityId)) {
+    if (!empty($this->hostEntityId) && $this->isInUse()) {
       if (is_array($this->hostEntityId)) {
-        $current_id = in_array(
-          $recieved_id,
-          $this->hostEntityId
-        ) ? $recieved_id : FALSE;
+        $current_id = in_array($recieved_id, $this->hostEntityId)
+          ? $recieved_id
+          : FALSE;
       }
       else {
         $current_id = $this->hostEntityId;
@@ -412,7 +411,7 @@ class FieldCollectionItemEntity extends Entity {
    * Determines the language code under which the item is stored.
    */
   public function langcode() {
-    if ($this->delta() === NULL || empty($this->langcode)) {
+    if (empty($this->langcode) || $this->delta() === NULL) {
       $this->langcode = field_collection_entity_language('field_collection_item', $this);
     }
 
@@ -463,7 +462,7 @@ class FieldCollectionItemEntity extends Entity {
     }
 
     // Copy the values of translatable fields for a new field collection item.
-    if (field_collection_item_is_translatable() && !empty($this->is_new) && $this->langcode() == LANGUAGE_NONE) {
+    if (!empty($this->is_new) && field_collection_item_is_translatable() && $this->langcode() == LANGUAGE_NONE) {
       $this->copyTranslations();
     }
 

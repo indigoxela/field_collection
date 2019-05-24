@@ -294,7 +294,7 @@ function field_collection_menu() {
  * Implements hook_menu_alter() to fix the field collections admin UI tabs.
  */
 function field_collection_menu_alter(&$items) {
-  if (module_exists('field_ui') && isset($items['admin/structure/field-collections/%field_collection_field_name/fields'])) {
+  if (isset($items['admin/structure/field-collections/%field_collection_field_name/fields']) && module_exists('field_ui')) {
     // Make the fields task the default local task.
     $items['admin/structure/field-collections/%field_collection_field_name'] = $items['admin/structure/field-collections/%field_collection_field_name/fields'];
     $item = &$items['admin/structure/field-collections/%field_collection_field_name'];
@@ -369,7 +369,7 @@ function field_collection_item_access($op, FieldCollectionItemEntity $item = NUL
   // We do not support editing field collection revisions that are not used at
   // the hosts default revision as saving the host might result in a new default
   // revision.
-  if (isset($item) && !$item->isInUse() && $op != 'view') {
+  if ($op != 'view' && isset($item) && !$item->isInUse()) {
     return FALSE;
   }
   if (user_access('edit field collections', $account)) {
@@ -577,7 +577,7 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
     // In case the entity has been changed / created, save it and set the id.
     // If the host entity creates a new revision, save new item-revisions as
     // well.
-    if (isset($item['entity']) || !empty($host_entity->revision)) {
+    if (!empty($host_entity->revision) || isset($item['entity'])) {
       if ($entity = field_collection_field_get_entity($item)) {
         // If the host entity is saved as new revision, do the same for the item.
         if (!empty($host_entity->revision) || !empty($host_entity->is_new_revision)) {
@@ -1124,7 +1124,7 @@ function field_collection_field_formatter_links(&$element, $entity_type, $entity
       $path = field_collection_field_get_path($field);
       list($id) = entity_extract_ids($entity_type, $entity);
       $element['#suffix'] = '';
-      if (!empty($settings['description']) && $entity_type != 'node') {
+      if ($entity_type != 'node' && !empty($settings['description'])) {
         $element['#suffix'] .= '<div class="description field-collection-description">' . field_filter_xss($instance['description']) . '</div>';
       }
       $title = entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_add", $settings['add']);
@@ -1226,14 +1226,14 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
 
       $field_state = field_form_get_state($field_parents, $field_name, $language, $form_state);
 
-      if (field_collection_hide_blank_items($field) && $delta == $field_state['items_count'] && $delta > 0) {
+      if ($delta > 0 && $delta == $field_state['items_count'] && field_collection_hide_blank_items($field)) {
         // Do not add a blank item. Also see
         // field_collection_field_attach_form() for correcting #max_delta.
         $recursion--;
         return FALSE;
       }
 
-      if (field_collection_hide_blank_items($field) && $field_state['items_count'] == 0) {
+      if ($field_state['items_count'] == 0 && field_collection_hide_blank_items($field)) {
         // We show one item, so also specify that as item count. So when the
         // add button is pressed the item count will be 2 and we show two items.
         $field_state['items_count'] = 1;
@@ -1445,11 +1445,11 @@ function field_collection_field_attach_form($entity_type, $entity, &$form, &$for
       }
     }
 
-    if ($field['type'] == 'field_collection'
-        && $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED
+    if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED
         && empty($form_state['programmed'])
+        && $instance['widget']['type'] === 'field_collection_embed'
         && field_access('edit', $field, $entity_type)
-        && $instance['widget']['type'] == 'field_collection_embed') {
+        && $field['type'] === 'field_collection') {
 
       $element_langcode = $form[$field_name]['#language'];
       $element_wrapper = $form[$field_name][$element_langcode]['add_more']['#ajax']['wrapper'];
@@ -1463,7 +1463,7 @@ function field_collection_field_attach_form($entity_type, $entity, &$form, &$for
 
   // If FCs are translatable, make sure we mark any necessary sub-fields in the
   // FC widget as translatable as well.
-  if ($entity_type == 'field_collection_item'
+  if ($entity_type === 'field_collection_item'
       && field_collection_item_is_translatable()
   ) {
     foreach (field_info_instances($entity_type, $form['#bundle']) as $field_name => $instance) {
@@ -1648,7 +1648,7 @@ function field_collection_field_get_entity(&$item, $field_name = NULL) {
     return $entity;
   }
 
-  if (!isset($item['entity']) && isset($field_name)) {
+  if (isset($field_name) && !isset($item['entity'])) {
     $item['entity'] = entity_create('field_collection_item', array('field_name' => $field_name));
     return $item['entity'];
   }
@@ -1731,7 +1731,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
   }
 
   // Now validate required elements if the entity is not empty.
-  if (!field_collection_item_is_empty($field_collection_item) && !empty($element['#field_collection_required_elements'])) {
+  if (!empty($element['#field_collection_required_elements']) && !field_collection_item_is_empty($field_collection_item)) {
     foreach ($element['#field_collection_required_elements'] as &$elements) {
 
       // Copied from _form_validate().
@@ -1754,7 +1754,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
           $field_values = drupal_array_get_nested_value($form_state['values'], array_slice($elements['#array_parents'], 0, $field_depth));
 
           // Special case lists since we don't get the correct array_parents.
-          if (count($elements['#array_parents']) < $field_depth && is_array($field_values)) {
+          if (is_array($field_values) && count($elements['#array_parents']) < $field_depth) {
             $field_values = reset($field_values);
           }
 
@@ -2020,7 +2020,7 @@ function field_collection_field_property_set($entity, $name, $value, $langcode, 
         $items[$delta][$columns[0]] = $value->item_id;
         $items[$delta][$columns[1]] = $value->revision_id;
       }
-      elseif (isset($value['value'], $value['revision_id']) && is_array($value)) {
+      elseif (is_array($value) && isset($value['value'], $value['revision_id'])) {
         $items[$delta][$columns[0]] = $value['value'];
         $items[$delta][$columns[1]] = $value['revision_id'];
       }
