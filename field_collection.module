@@ -344,6 +344,10 @@ function field_collection_permission() {
       'title' => t('Administer field collections'),
       'description' => t('Create and delete fields on field collections.'),
     ),
+    'edit field collections' => array(
+      'title' => t('Edit field collections'),
+      'description' => t('Edit field collections.'),
+    ),
   );
 }
 
@@ -367,6 +371,9 @@ function field_collection_item_access($op, FieldCollectionItemEntity $item = NUL
   // revision.
   if (isset($item) && !$item->isInUse() && $op != 'view') {
     return FALSE;
+  }
+  if (user_access('edit field collections', $account)) {
+    return TRUE;
   }
   if (user_access('administer field collections', $account)) {
     return TRUE;
