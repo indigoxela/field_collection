@@ -325,10 +325,14 @@ class FieldCollectionItemEntity extends Entity {
         if ($hostEntity) {
           $entity_type = key($field_info['bundles']);
           $bundle = current($field_info['bundles'][$entity_type]);
+          $entity_info = entity_get_info($entity_type);
+          $key = $entity_info['entity keys']['id'];
           $query->entityCondition('entity_type', $entity_type);
-          $query->entityCondition('entity_id', $hostEntity->nid);
+          $query->entityCondition('entity_id', $hostEntity->{$key});
           $query->entityCondition('bundle', $bundle);
-          $query->propertyCondition('language', $hostEntity->language);
+          if (isset($entity_info['entity keys']['language'])) {
+            $query->propertyCondition('language', $hostEntity->language);
+          }
         }
         $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
         if (!$this->isInUse()) {
