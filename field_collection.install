@@ -408,6 +408,7 @@ function field_collection_update_7009(&$sandbox) {
 
   if (!isset($sandbox['current_field'])) {
     $sandbox['field_collection_fields'] = array_keys(field_read_fields(array('type' => 'field_collection')));
+    if(empty($sandbox['field_collection_fields'])) { return; }
     $sandbox['current_field'] = 0;
     $sandbox['current_field_collection_item'] = 0;
     $sandbox['field_name'] = $sandbox['field_collection_fields'][$sandbox['current_field']];
