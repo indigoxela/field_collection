@@ -607,6 +607,10 @@ class FieldCollectionItemEntity extends Entity {
           ->fields(array('archived' => 1, 'revision_id' => $row['revision_id']))
           ->condition('item_id', $this->item_id)
           ->execute();
+
+        // Let other modules know about the archived item.
+        entity_get_controller('field_collection_item')->invoke('archive', $this);
+
         entity_get_controller('field_collection_item')->resetCache(array($this->item_id));
         entity_revision_delete('field_collection_item', $this->revision_id);
       }

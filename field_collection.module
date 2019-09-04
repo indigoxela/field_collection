@@ -631,6 +631,13 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
         ->fields(array('archived' => 1))
         ->condition('item_id', $ids, 'IN')
         ->execute();
+
+      // Let other modules know about the archived items.
+      foreach (field_collection_item_load_multiple($ids) as $un_item) {
+        entity_get_controller('field_collection_item')->invoke('archive', $un_item);
+
+        entity_get_controller('field_collection_item')->resetCache(array($un_item->item_id));
+      }
     }
     else {
       // Load items from the original entity from all languages checking which
