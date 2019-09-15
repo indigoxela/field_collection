@@ -652,8 +652,7 @@ class FieldCollectionItemEntity extends Entity {
    */
   public function __sleep() {
     $vars = get_object_vars($this);
-    unset($vars['entityInfo'], $vars['idKey'], $vars['nameKey'], $vars['statusKey']);
-    unset($vars['fieldInfo']);
+    unset($vars['entityInfo'], $vars['idKey'], $vars['nameKey'], $vars['statusKey'], $vars['fieldInfo']);
     // Also do not serialize the host entity, but only if it has already an id.
     if ($this->hostEntity && ($this->hostEntityId || $this->hostEntityRevisionId)) {
       unset($vars['hostEntity']);
