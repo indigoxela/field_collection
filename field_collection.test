@@ -361,7 +361,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     // Make sure adding doesn't work any more as we have restricted cardinality
     // to 1.
     $this->drupalGet($path);
-    $this->assertText(t('Too many items.'), 'Maxium cardinality has been reached.');
+    $this->assertResponse(403);
 
     $this->drupalPost('field-collection/field-test-collection/1/delete', array(), t('Delete'));
     $this->drupalGet($path);

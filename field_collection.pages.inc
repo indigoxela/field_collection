@@ -118,8 +118,7 @@ function field_collection_item_add($field_name, $entity_type, $entity_id, $revis
   $langcode = !empty($field['translatable']) ? entity_language($entity_type, $entity) : LANGUAGE_NONE;
 
   if (!($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED || !isset($entity->{$field_name}[$langcode]) || count($entity->{$field_name}[$langcode]) < $field['cardinality'])) {
-    drupal_set_message(t('Too many items.'), 'error');
-    return '';
+    return MENU_ACCESS_DENIED;
   }
 
   $field_collection_item = entity_create('field_collection_item', array('field_name' => $field_name));
