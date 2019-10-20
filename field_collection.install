@@ -425,8 +425,7 @@ function field_collection_update_7009(&$sandbox) {
     ->fields('t', array("{$sandbox['field_name']}_revision_id"))
     ->range($sandbox['current_field_collection_item'], $items_per_pass)
     ->groupBy("t.{$sandbox['field_name']}_revision_id");
-  $query->addExpression("COUNT(t.{$sandbox['field_name']}_revision_id)", 'vidcount');
-  $query->havingCondition('vidcount', 2, '>=');
+  $query->having("COUNT(t.{$sandbox['field_name']}_revision_id) >= 2");
   $vids = $query->execute()->fetchCol();
 
   // Each revision ID that occurs more than once.
