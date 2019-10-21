@@ -537,6 +537,11 @@ function field_collection_field_insert($host_entity_type, $host_entity, $field, 
         'value' => $entity->item_id,
         'revision_id' => $entity->revision_id,
       );
+
+      if (module_exists('pathauto')) {
+        module_load_include('inc', 'field_collection', 'field_collection.pathauto');
+        field_collection_pathauto_create_alias($host_entity, $entity, 'insert');
+      }
     }
   }
 }
@@ -617,6 +622,11 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
           'value' => $entity->item_id,
           'revision_id' => $entity->revision_id,
         );
+
+        if (module_exists('pathauto')) {
+          module_load_include('inc', 'field_collection', 'field_collection.pathauto');
+          field_collection_pathauto_create_alias($host_entity, $entity, 'update');
+        }
       }
     }
 
@@ -656,6 +666,10 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
       foreach (field_collection_item_load_multiple($items_to_remove) as $un_item) {
         $un_item->updateHostEntity($host_entity, $host_entity_type);
         $un_item->deleteRevision(TRUE);
+
+        if (module_exists('pathauto')) {
+          pathauto_entity_path_delete_all('field_collection_item', $un_item);
+        }
       }
     }
   }
@@ -698,6 +712,10 @@ function field_collection_field_delete($entity_type, $entity, $field, $instance,
         if (!empty($hostEntity)) {
           $hostEntity->field_collection_deleting = TRUE;
         }
+      }
+
+      if (module_exists('pathauto')) {
+        pathauto_path_delete_all('field-collection/' . str_replace('_', '-', $field['field_name']) . '/' . $id);
       }
     }
 
