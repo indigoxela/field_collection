@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * @file
  * Module implementing field collection field type.
@@ -963,7 +964,7 @@ function field_collection_entity_preload($entities, $langcode, &$items, $fields)
   static $local_entity_cache = array();
 
   $fc_ids = array();
-
+  $new_items = array();
   // Collect every possible term attached to any of the fieldable entities.
   foreach ($entities as $id => $entity) {
     foreach ($items[$id] as $delta => $item) {
@@ -982,6 +983,7 @@ function field_collection_entity_preload($entities, $langcode, &$items, $fields)
   if ($fc_ids) {
     $new_entities = array();
     $terms = field_collection_item_load_multiple($fc_ids);
+    $new_items == $items;
 
     // Iterate through the fieldable entities again to attach the loaded
     // field collection data.
@@ -1002,7 +1004,7 @@ function field_collection_entity_preload($entities, $langcode, &$items, $fields)
               $field_data = $e->$field_name;
               if (isset($field_data[$langcode])) {
                 $new_entities[$e->item_id] = $e->item_id;
-                $items[$e->item_id] = $field_data[$langcode];
+                $new_items[$e->item_id] = $field_data[$langcode];
               }
             }
           }
@@ -1010,18 +1012,17 @@ function field_collection_entity_preload($entities, $langcode, &$items, $fields)
         // Otherwise, unset the instance value, since the field colletion entity
         // does not exist.
         else {
-          unset($items[$id][$delta]);
+          unset($new_items[$id][$delta]);
           $rekey = TRUE;
         }
       }
 
       if ($rekey) {
         // Rekey the items array.
-        $items[$id] = array_values($items[$id]);
+        $new_items[$id] = array_values($new_items[$id]);
       }
     }
-
-    field_collection_entity_preload($new_entities, $langcode, $items, $fields);
+    field_collection_entity_preload($new_entities, $langcode, $new_items, $fields);
   }
 }
 
