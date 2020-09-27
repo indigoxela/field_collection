@@ -66,7 +66,6 @@ function field_collection_token_info_alter(&$data) {
   );
 }
 
-
 /**
  * Implements hook_tokens().
  */

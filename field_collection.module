@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Module implementing field collection field type.
@@ -2448,7 +2447,6 @@ function field_collection_file_feeds_set_target($source, $entity, $target, $valu
   $entity->{$target} = $field;
 
 }
-
 
 /**
  * Implementation of hook_feeds_presave().
