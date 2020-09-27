@@ -330,8 +330,10 @@ class FieldCollectionItemEntity extends Entity {
           $query->entityCondition('entity_type', $entity_type);
           $query->entityCondition('entity_id', $hostEntity->{$key});
           $query->entityCondition('bundle', $bundle);
-          if (isset($entity_info['entity keys']['language'])) {
-            $query->propertyCondition('language', $hostEntity->language);
+          // Only filter by language if this entity type has a language key that
+          // has a corresponding field in its base table.
+          if (!empty($entity_info['entity keys']['language']) && !empty($entity_info['schema_fields_sql']['base table']) && in_array($entity_info['entity keys']['language'], $entity_info['schema_fields_sql']['base table'], TRUE)) {
+            $query->propertyCondition($entity_info['entity keys']['language'], $hostEntity->{$entity_info['entity keys']['language']});
           }
         }
         $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
