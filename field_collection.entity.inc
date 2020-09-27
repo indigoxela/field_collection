@@ -127,7 +127,7 @@ class FieldCollectionItemEntity extends Entity {
   public function translatedInstanceLabel($langcode = NULL) {
     if ($info = $this->instanceInfo()) {
       if (module_exists('i18n_field')) {
-        return i18n_string("field:{$this->field_name}:{$info['bundle']}:label", $info['label'], array('langcode' => $langcode));
+        return i18n_string("field:{$this->field_name}:{$info['bundle']}:label", $info['label'], array('langcode' => $langcode, 'sanitize' => FALSE));
       }
       return $info['label'];
     }
