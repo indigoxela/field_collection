@@ -968,6 +968,11 @@ function field_collection_entity_preload($entities, $langcode, &$items, $fields)
   foreach ($entities as $id => $entity) {
     foreach ($items[$id] as $delta => $item) {
 
+      // Check if the entity already exists.
+      if (isset($item['entity'])) {
+        continue;
+      }
+
       // Check if this item is in our local entity cache.
       if (isset($local_entity_cache[$item['value']])) {
         $items[$id][$delta]['field_collection'] = $local_entity_cache[$item['value']];
