@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Implements hook_pathauto().
  */
 function field_collection_pathauto($op) {
@@ -14,7 +18,6 @@ function field_collection_pathauto($op) {
     // @todo Implement bulk update:
     // $settings['batch_update_callback'] = 'field_collection_pathauto_bulk_update_batch_process';
     // $settings['batch_file'] = drupal_get_path('module', 'field_collection') . '/field_collection.pathauto.inc';
-
     $settings['patternitems'] = array();
     $instances = field_info_instances();
     foreach ($instances as $entity_type => $type_bundles) {

@@ -5,8 +5,14 @@
  * Provides entity property info for field collection items.
  */
 
+/**
+ *
+ */
 class FieldCollectionItemMetadataController extends EntityDefaultMetadataController {
 
+  /**
+   *
+   */
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();
     $properties = &$info['field_collection_item']['properties'];

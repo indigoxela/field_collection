@@ -68,7 +68,7 @@ function field_collection_schema() {
     $schema['cache_entity_field_collection_item'] = drupal_get_schema_unprocessed('system', 'cache');
     $schema['cache_entity_field_collection_item']['description'] = 'Cache table used to store field_collection_item entity records.';
   }
-  
+
   return $schema;
 }
 
@@ -293,10 +293,10 @@ function field_collection_update_7004() {
 /**
  * Force the creation of the table cache_entity_field_collection_item.
  *
- * entity_update_7003 will attempt to install entitycache tables for existing
- * modules, but it uses module_list() to get the list of available modules,
- * which, when called from a database update, may not return field_collection
- * since drupal is bootstrapped at a lower level.
+ * Update entity_update_7003() will attempt to install entitycache tables for
+ * existing modules, but it uses module_list() to get the list of available
+ * modules, which, when called from a database update, may not return
+ * field_collection since drupal is bootstrapped at a lower level.
  */
 function field_collection_update_7005() {
   if (module_exists('entitycache')) {
@@ -500,8 +500,6 @@ function field_collection_update_7009(&$sandbox) {
       }
     }
 
-
-
     foreach ($modern_revisions as $each_modern_revision) {
       $new_revision_id = _field_collection_update_7009_new_revision($field_collection_item_id, $each_modern_revision, $sandbox['inner_fields'], $sandbox['field_name']);
 
@@ -557,6 +555,9 @@ function field_collection_update_7009(&$sandbox) {
   }
 }
 
+/**
+ *
+ */
 function _field_collection_update_7009_new_revision($field_collection_item_id, $row_to_replace, $inner_fields, $field_name) {
   // Add to field_collection_item_revision table.
   $new_revision_id = db_insert('field_collection_item_revision')
@@ -566,6 +567,9 @@ function _field_collection_update_7009_new_revision($field_collection_item_id, $
   return $new_revision_id;
 }
 
+/**
+ *
+ */
 function _field_collection_update_7009_update_data($new_revision, $old_revision) {
   // Update the current field collection item.
   db_update('field_collection_item')

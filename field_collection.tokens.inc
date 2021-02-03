@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Provides host entity tokens for field_collection.module
+ * Provides host entity tokens for field_collection.module.
  */
 
 /**

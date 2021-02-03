@@ -17,7 +17,7 @@ class field_collection_handler_relationship extends views_handler_relationship {
   /**
    * Add a delta selector for multiple fields.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     $field = field_info_field($this->definition['field_name']);
@@ -40,7 +40,10 @@ class field_collection_handler_relationship extends views_handler_relationship {
     }
   }
 
-  function ensure_my_table() {
+  /**
+   *
+   */
+  public function ensure_my_table() {
     $field = field_info_field($this->definition['field_name']);
 
     if (!isset($this->table_alias)) {

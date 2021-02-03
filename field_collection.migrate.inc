@@ -41,6 +41,9 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
    */
   protected $hostEntityType;
 
+  /**
+   *
+   */
   public static function getKeySchema() {
     return array(
       'item_id' => array(
@@ -83,10 +86,10 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
   /**
    * Import a single field collection item.
    *
-   * @param \stdClass $collection
+   * @param object $collection
    *   Collection object to build. Pre-filled with any fields mapped in the
    *   migration.
-   * @param \stdClass $row
+   * @param object $row
    *   Raw source data object - passed through to prepare/complete handlers.
    *
    * @return array|bool

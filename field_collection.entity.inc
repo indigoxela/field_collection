@@ -22,14 +22,14 @@ class FieldCollectionItemEntity extends Entity {
   /**
    * The host entity ID.
    *
-   * @var integer
+   * @var int
    */
   protected $hostEntityId;
 
   /**
    * The host entity revision ID if this is not the default revision.
    *
-   * @var integer
+   * @var int
    */
   protected $hostEntityRevisionId;
 
@@ -50,14 +50,14 @@ class FieldCollectionItemEntity extends Entity {
   /**
    * Entity ID.
    *
-   * @var integer
+   * @var int
    */
   public $item_id;
 
   /**
    * Field Collection revision ID.
    *
-   * @var integer
+   * @var int
    */
   public $revision_id;
 
@@ -95,7 +95,7 @@ class FieldCollectionItemEntity extends Entity {
     // FIXME: Remove when #1264440 is fixed and the required PHP version is
     //  properly identified and documented in the module documentation.
     if (isset($this->field_name)) {
-      // Ok, we have the field name property, we can proceed and check the field's type
+      // Ok, we have the field name property, we can proceed and check the field's type.
       $field_info = $this->fieldInfo();
       if (!$field_info || $field_info['type'] != 'field_collection') {
         throw new Exception("Invalid field name given: {$this->field_name} is not a Field Collection field.");

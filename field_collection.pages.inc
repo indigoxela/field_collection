@@ -18,6 +18,7 @@ function field_collection_item_page_view($field_collection_item) {
 
 /**
  * Form for editing a field collection item.
+ *
  * @todo implement hook_forms().
  */
 function field_collection_item_form($form, &$form_state, $field_collection_item) {

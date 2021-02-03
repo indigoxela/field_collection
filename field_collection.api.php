@@ -132,16 +132,16 @@ function hook_field_collection_item_archive(FieldCollectionItemEntity $field_col
 /**
  * Act on a field collection item that is being assembled before rendering.
  *
+ * The module may add elements to $field_collection_item->content prior to
+ * rendering. The structure of $field_collection_item->content is a renderable
+ * array as expected by drupal_render().
+ *
  * @param $field_collection_item
  *   The field collection item entity.
  * @param $view_mode
  *   The view mode the field collection item is rendered in.
  * @param $langcode
  *   The language code used for rendering.
- *
- * The module may add elements to $field_collection_item->content prior to
- * rendering. The structure of $field_collection_item->content is a renderable
- * array as expected by drupal_render().
  *
  * @see hook_entity_prepare_view()
  * @see hook_entity_view()
@@ -191,7 +191,7 @@ function hook_field_collection_item_view_alter($build) {
  * @param $field
  *   The field information about the item.
  *
- * @return $label
+ * @return string
  *   A string to represent the label for this item type.
  */
 function hook_field_collection_item_label($item, $host, $field) {
@@ -205,7 +205,6 @@ function hook_field_collection_item_label($item, $host, $field) {
       return "{$title} by {$author}";
   }
 }
-
 
 /**
  * @}
