@@ -1021,7 +1021,7 @@ function field_collection_entity_preload($entities, $langcode, &$items, $fields)
         }
       }
 
-      if ($rekey) {
+      if ($rekey && $new_items) {
         // Rekey the items array.
         $new_items[$id] = array_values($new_items[$id]);
       }
