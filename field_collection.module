@@ -987,7 +987,7 @@ function field_collection_entity_preload($entities, $langcode, &$items, $fields)
   if ($fc_ids) {
     $new_entities = array();
     $terms = field_collection_item_load_multiple($fc_ids);
-    $new_items == $items;
+    $new_items = $items;
 
     // Iterate through the fieldable entities again to attach the loaded
     // field collection data.
