@@ -575,6 +575,11 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
   if (!empty($top_host->workbench_moderation['updating_live_revision'])) {
     return;
   }
+  // Don't modify the field collections if using drafty and this is not a
+  // draft revision.
+  if (module_exists('drafty') && empty($top_host->is_draft_revision)) {
+    return;
+  }
 
   // Load items from the original entity.
   $items_original = !empty($original->{$field['field_name']}[$langcode]) ? $original->{$field['field_name']}[$langcode] : array();
