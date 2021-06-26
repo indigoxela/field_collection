@@ -1018,9 +1018,10 @@ function field_collection_entity_preload($entities, $langcode, &$items, $fields)
             }
           }
         }
-        // Otherwise, unset the instance value, since the field colletion entity
-        // does not exist.
-        else {
+        // Otherwise, check to see if the instance's field_collection value has
+        // already been set. If not, unset the instance value, since the field
+        // collection entity does not exist.
+        elseif (!isset($items[$id][$delta]['field_collection'])) {
           unset($new_items[$id][$delta]);
           $rekey = TRUE;
         }
