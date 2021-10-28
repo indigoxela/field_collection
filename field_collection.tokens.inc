@@ -131,7 +131,7 @@ function field_collection_tokens($type, $tokens, array $data = array(), array $o
  *   collection usage.
  */
 function field_collection_host_entity_types() {
-  $host_entity_types = &drupal_static(__FUNCTION__, FALSE);
+  $host_entity_types = &backdrop_static(__FUNCTION__, FALSE);
 
   if ($host_entity_types === FALSE) {
     $host_entity_types = array();

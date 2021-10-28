@@ -12,7 +12,7 @@
  */
 function field_collection_item_page_view($field_collection_item) {
   // @todo: Set breadcrumb including the host.
-  drupal_set_title($field_collection_item->label());
+  backdrop_set_title($field_collection_item->label());
   return $field_collection_item->view('full', NULL, TRUE);
 }
 
@@ -23,7 +23,7 @@ function field_collection_item_page_view($field_collection_item) {
  */
 function field_collection_item_form($form, &$form_state, $field_collection_item) {
   if (!isset($field_collection_item->is_new)) {
-    drupal_set_title($field_collection_item->label());
+    backdrop_set_title($field_collection_item->label());
   }
   $form_state += array('field_collection_item' => $field_collection_item);
 
@@ -64,7 +64,7 @@ function field_collection_item_form_submit_build_field_collection($form, $form_s
 function field_collection_item_form_submit($form, &$form_state) {
   $field_collection_item = field_collection_item_form_submit_build_field_collection($form, $form_state);
   $field_collection_item->save();
-  drupal_set_message(t('The changes have been saved.'));
+  backdrop_set_message(t('The changes have been saved.'));
   $form_state['redirect'] = $field_collection_item->path();
 }
 
@@ -88,7 +88,7 @@ function field_collection_item_delete_confirm($form, &$form_state, $field_collec
 function field_collection_item_delete_confirm_submit($form, &$form_state) {
   $field_collection_item = $form_state['field_collection_item'];
   entity_delete('field_collection_item', $field_collection_item->item_id);
-  drupal_set_message(t('%label has been deleted.', array('%label' => drupal_ucfirst($field_collection_item->label()))));
+  backdrop_set_message(t('%label has been deleted.', array('%label' => backdrop_ucfirst($field_collection_item->label()))));
   $form_state['redirect'] = '<front>';
 }
 
@@ -131,11 +131,11 @@ function field_collection_item_add($field_name, $entity_type, $entity_id, $revis
 
   $label = $field_collection_item->translatedInstanceLabel();
   $title = $field['cardinality'] == 1 ? $label : t('Add new !instance_label', array('!instance_label' => $label));
-  drupal_set_title($title);
+  backdrop_set_title($title);
 
   // Make sure the current user has access to create a field collection item.
   if (!entity_access('create', 'field_collection_item', $field_collection_item)) {
     return MENU_ACCESS_DENIED;
   }
-  return drupal_get_form('field_collection_item_form', $field_collection_item);
+  return backdrop_get_form('field_collection_item_form', $field_collection_item);
 }

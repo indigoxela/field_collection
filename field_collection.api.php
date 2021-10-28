@@ -134,7 +134,7 @@ function hook_field_collection_item_archive(FieldCollectionItemEntity $field_col
  *
  * The module may add elements to $field_collection_item->content prior to
  * rendering. The structure of $field_collection_item->content is a renderable
- * array as expected by drupal_render().
+ * array as expected by backdrop_render().
  *
  * @param $field_collection_item
  *   The field collection item entity.
@@ -163,7 +163,7 @@ function hook_field_collection_item_view($field_collection_item, $view_mode, $la
  *
  * If the module wishes to act on the rendered HTML of the field collection item
  * rather than the structured content array, it may use this hook to add a
- * #post_render callback. See drupal_render() and theme() documentation
+ * #post_render callback. See backdrop_render() and theme() documentation
  * respectively for details.
  *
  * @param $build

@@ -93,7 +93,7 @@ class FieldCollectionItemEntity extends Entity {
     // Check if the required property is set before checking for the field's
     // type. If the property is not set, we are hitting a PDO or a core's bug.
     // FIXME: Remove when #1264440 is fixed and the required PHP version is
-    //  properly identified and documented in the module documentation.
+    // properly identified and documented in the module documentation.
     if (isset($this->field_name)) {
       // Ok, we have the field name property, we can proceed and check the field's type.
       $field_info = $this->fieldInfo();
@@ -662,7 +662,7 @@ class FieldCollectionItemEntity extends Entity {
 
     // Also key the returned array with the variable names so the method may
     // be easily overridden and customized.
-    return drupal_map_assoc(array_keys($vars));
+    return backdrop_map_assoc(array_keys($vars));
   }
 
 }

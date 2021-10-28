@@ -86,7 +86,7 @@ function field_collection_field_render_revision($item, $context) {
 
       if (!empty($new_items)) {
         $raw_values = $func($new_items, $field_context);
-        drupal_alter('field_diff_view', $raw_values, $new_items, $field_context);
+        backdrop_alter('field_diff_view', $raw_values, $new_items, $field_context);
         $values = array();
         foreach ($raw_values as $raw_value) {
           $values[] = is_array($raw_value) ? implode(', ', $raw_value) : $raw_value;

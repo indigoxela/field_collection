@@ -1,0 +1,24 @@
+[FieldCollectionBasicTestCase]
+name = Field collection
+description = Tests creating and using field collections.
+group = Field types
+file = field_collection.test
+
+[FieldCollectionRulesIntegrationTestCase]
+name = Field collection Rules integration
+description = Tests using field collections with rules.
+group = Field types
+file = field_collection.test
+
+[FieldCollectionContentTranslationTestCase]
+name = Field collection content translation
+description = Tests using content under translation.
+group = Field types
+file = field_collection.test
+
+[FieldCollectionEntityTranslationTestCase]
+name = Field collection entity translation
+description = Tests using content under translation with Entity Translation.
+group = Field types
+file = field_collection.test
+

@@ -27,7 +27,7 @@ function field_collection_help($path, $arg) {
 function field_collection_form_alter(&$form, &$form_state) {
   if (!empty($form['#field_collection_translation_fields'])) {
     foreach ($form['#field_collection_translation_fields'] as $address) {
-      drupal_array_set_nested_value($form, array_merge($address, array('#multilingual')), TRUE);
+      backdrop_array_set_nested_value($form, array_merge($address, array('#multilingual')), TRUE);
     }
   }
 }
@@ -249,7 +249,7 @@ function field_collection_menu() {
         'weight' => -10,
       );
       $items[$path . '/%field_collection_item/edit'] = array(
-        'page callback' => 'drupal_get_form',
+        'page callback' => 'backdrop_get_form',
         'page arguments' => array('field_collection_item_form', $count),
         'access callback' => 'entity_access',
         'access arguments' => array('update', 'field_collection_item', $count),
@@ -259,7 +259,7 @@ function field_collection_menu() {
         'file' => 'field_collection.pages.inc',
       );
       $items[$path . '/%field_collection_item/delete'] = array(
-        'page callback' => 'drupal_get_form',
+        'page callback' => 'backdrop_get_form',
         'page arguments' => array('field_collection_item_delete_confirm', $count),
         'access callback' => 'entity_access',
         'access arguments' => array('delete', 'field_collection_item', $count),
@@ -328,7 +328,7 @@ function field_collection_admin_page_title($field_name) {
  * @return array
  */
 function field_collection_admin_paths() {
-  if (variable_get('node_admin_theme')) {
+  if (config_get('system.performance', 'node_admin_theme')) {
     return array(
       'field-collection/*/*/edit' => TRUE,
       'field-collection/*/*/delete' => TRUE,
@@ -822,7 +822,7 @@ function field_collection_item_is_empty(FieldCollectionItemEntity $item) {
   }
 
   // Allow other modules a chance to alter the value before returning.
-  drupal_alter('field_collection_is_empty', $is_empty, $item);
+  backdrop_alter('field_collection_is_empty', $is_empty, $item);
   return $is_empty;
 }
 
@@ -964,6 +964,10 @@ function field_collection_field_formatter_settings_summary($field, $instance, $v
   return implode('<br>', $output);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function field_collection_entity_preload($entities, $langcode, &$items, $fields) {
   static $local_entity_cache = array();
 
@@ -1036,6 +1040,10 @@ function field_collection_entity_preload($entities, $langcode, &$items, $fields)
   }
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function field_collection_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
   $fields = field_read_fields(array('type' => 'field_collection'));
   field_collection_entity_preload($entities, $langcode, $items, $fields);
@@ -1058,7 +1066,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
           foreach (field_collection_get_operations($settings) as $op => $label) {
             if ($settings[$op] && entity_access($op === 'edit' ? 'update' : $op, 'field_collection_item', $field_collection)) {
               $title = entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_$op", $settings[$op]);
-              $links[] = l($title, $field_collection->path() . '/' . $op, array('query' => drupal_get_destination()));
+              $links[] = l($title, $field_collection->path() . '/' . $op, array('query' => backdrop_get_destination()));
             }
           }
           if ($links) {
@@ -1089,7 +1097,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
           $element[$delta]['#theme_wrappers'] = array('field_collection_view');
           $element[$delta]['#attributes']['class'][] = 'field-collection-view';
           $element[$delta]['#attributes']['class'][] = 'clearfix';
-          $element[$delta]['#attributes']['class'][] = drupal_clean_css_identifier('view-mode-' . $view_mode);
+          $element[$delta]['#attributes']['class'][] = backdrop_clean_css_identifier('view-mode-' . $view_mode);
 
           $links = array(
             '#theme' => 'links__field_collection_view',
@@ -1100,7 +1108,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
               $links['#links'][$op] = array(
                 'title' => entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_$op", $settings[$op]),
                 'href' => $field_collection->path() . '/' . $op,
-                'query' => drupal_get_destination(),
+                'query' => backdrop_get_destination(),
               );
             }
           }
@@ -1109,7 +1117,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
       }
       field_collection_field_formatter_links($element, $entity_type, $entity, $field, $instance, $langcode, $items, $display);
       if (!empty($items) || !empty($element['#suffix'])) {
-        $element['#attached']['css'][] = drupal_get_path('module', 'field_collection') . '/field_collection.theme.css';
+        $element['#attached']['css'][] = backdrop_get_path('module', 'field_collection') . '/field_collection.theme.css';
       }
       break;
 
@@ -1174,7 +1182,7 @@ function field_collection_field_formatter_links(&$element, $entity_type, $entity
       $add_path = $path . '/add/' . $entity_type . '/' . $id;
       $element['#suffix'] .=
         '<ul class="action-links action-links-field-collection-add"><li>' .
-        l($title, $add_path, array('query' => drupal_get_destination())) .
+        l($title, $add_path, array('query' => backdrop_get_destination())) .
         '</li></ul>';
     }
   }
@@ -1198,7 +1206,7 @@ function field_collection_field_formatter_links(&$element, $entity_type, $entity
  */
 function theme_field_collection_view($variables) {
   $element = $variables['element'];
-  return '<div' . drupal_attributes($element['#attributes']) . '>' . $element['#children'] . '</div>';
+  return '<div' . backdrop_attributes($element['#attributes']) . '>' . $element['#children'] . '</div>';
 }
 
 /**
@@ -1247,7 +1255,7 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
       // If the field collection item form contains another field collection,
       // we might ran into a recursive loop. Prevent that.
       if ($recursion++ > 3) {
-        drupal_set_message(t('The field collection item form has not been embedded to avoid recursive loops.'), 'error');
+        backdrop_set_message(t('The field collection item form has not been embedded to avoid recursive loops.'), 'error');
         return $element;
       }
       $field_parents = $element['#field_parents'];
@@ -1339,6 +1347,7 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
       }
 
       // Make sure subfields get translatable clues (like 'all languages')
+      // TODO This variable was probably removed in Backdrop without replacement.
       if (field_collection_item_is_translatable() && variable_get('entity_translation_shared_labels', TRUE)) {
         foreach (element_children($element) as $key) {
           $element[$key]['#process'][] = 'entity_translation_element_translatability_clue';
@@ -1531,7 +1540,7 @@ function _field_collection_process_children_attached($elements) {
   }
 
   if (isset($elements['#attached'])) {
-    drupal_process_attached($elements);
+    backdrop_process_attached($elements);
   }
 
   foreach (element_children($elements) as $key) {
@@ -1551,7 +1560,7 @@ function field_collection_remove_js($form, $form_state) {
   $button = $form_state['triggering_element'];
 
   // Go one level up in the form, to the widgets container.
-  $element = drupal_array_get_nested_value($form, array_slice($button['#array_parents'], 0, -2));
+  $element = backdrop_array_get_nested_value($form, array_slice($button['#array_parents'], 0, -2));
   $field_name = $element['#field_name'];
   $langcode = $element['#language'];
   $parents = $element['#field_parents'];
@@ -1585,7 +1594,7 @@ function field_collection_remove_submit($form, &$form_state) {
   $values_address = array_slice($button['#parents'], 0, -2);
 
   // Go one level up in the form, to the widgets container.
-  $parent_element = drupal_array_get_nested_value($form, $address);
+  $parent_element = backdrop_array_get_nested_value($form, $address);
   $field_name = $parent_element['#field_name'];
   $langcode = $parent_element['#language'];
   $parents = $parent_element['#field_parents'];
@@ -1604,18 +1613,18 @@ function field_collection_remove_submit($form, &$form_state) {
     $old_element_values_address = array_merge($values_address, array($i + 1));
     $new_element_values_address = array_merge($values_address, array($i));
 
-    $moving_element = drupal_array_get_nested_value($form, $old_element_address);
-    $moving_element_value = drupal_array_get_nested_value($form_state['values'], $old_element_values_address);
-    $moving_element_input = drupal_array_get_nested_value($form_state['input'], $old_element_values_address);
-    $moving_element_field = drupal_array_get_nested_value($form_state['field']['#parents'], $old_element_address);
+    $moving_element = backdrop_array_get_nested_value($form, $old_element_address);
+    $moving_element_value = backdrop_array_get_nested_value($form_state['values'], $old_element_values_address);
+    $moving_element_input = backdrop_array_get_nested_value($form_state['input'], $old_element_values_address);
+    $moving_element_field = backdrop_array_get_nested_value($form_state['field']['#parents'], $old_element_address);
 
     // Tell the element where it's being moved to.
     $moving_element['#parents'] = $new_element_values_address;
 
     // Move the element around.
     form_set_value($moving_element, $moving_element_value, $form_state);
-    drupal_array_set_nested_value($form_state['input'], $moving_element['#parents'], $moving_element_input);
-    drupal_array_set_nested_value($form_state['field']['#parents'], $moving_element['#parents'], $moving_element_field);
+    backdrop_array_set_nested_value($form_state['input'], $moving_element['#parents'], $moving_element_input);
+    backdrop_array_set_nested_value($form_state['field']['#parents'], $moving_element['#parents'], $moving_element_field);
 
     // Move the entity in our saved state.
     if (isset($field_state['entity'][$i + 1])) {
@@ -1646,7 +1655,7 @@ function field_collection_remove_submit($form, &$form_state) {
   // if I have items weight weights 3 and 4, and I change 4 to 3 but leave
   // the 3, the order of the two 3s now is undefined and may not match what
   // the user had selected.
-  $input = drupal_array_get_nested_value($form_state['input'], $values_address);
+  $input = backdrop_array_get_nested_value($form_state['input'], $values_address);
   // Sort by weight.
   uasort($input, '_field_sort_items_helper');
 
@@ -1658,7 +1667,7 @@ function field_collection_remove_submit($form, &$form_state) {
     }
   }
 
-  drupal_array_set_nested_value($form_state['input'], $values_address, $input);
+  backdrop_array_set_nested_value($form_state['input'], $values_address, $input);
   field_form_set_state($parents, $field_name, $langcode, $form_state, $field_state);
 
   $form_state['rebuild'] = TRUE;
@@ -1755,7 +1764,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
     $field_collection_item = $field_state['entity'][$element['#delta']];
   }
   else {
-    $field_values = drupal_array_get_nested_value($form_state['values'], $field_state['array_parents']);
+    $field_values = backdrop_array_get_nested_value($form_state['values'], $field_state['array_parents']);
     if ($field_values[$element['#delta']]) {
       $field_collection_item = entity_create('field_collection_item', array('field_name' => $field['field_name']));
       foreach ($field_values[$element['#delta']] as $key => $value) {
@@ -1772,7 +1781,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
   // Handle a possible language change.
   if (field_collection_item_is_translatable()) {
     $handler = entity_translation_get_handler('field_collection_item', $field_collection_item);
-    $element_values = &drupal_array_get_nested_value($form_state['values'], $field_state['array_parents']);
+    $element_values = &backdrop_array_get_nested_value($form_state['values'], $field_state['array_parents']);
     $element_form_state = array('values' => &$element_values[$element['#delta']]);
     $handler->entityFormLanguageWidgetSubmit($element, $element_form_state);
   }
@@ -1785,7 +1794,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
       if (isset($elements['#needs_validation'])) {
         $is_countable = is_array($elements['#value']) || $elements['#value'] instanceof Countable;
         $is_empty_multiple = $is_countable && (!count($elements['#value']));
-        $is_empty_string = (is_string($elements['#value']) && drupal_strlen(trim($elements['#value'])) == 0);
+        $is_empty_string = (is_string($elements['#value']) && backdrop_strlen(trim($elements['#value'])) == 0);
         $is_empty_value = ($elements['#value'] === 0);
         $is_empty_option = (isset($elements['#options']['_none']) && $elements['#value'] === '_none');
 
@@ -1798,7 +1807,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
           // The field we're looking at is always 3 levels deeper than field
           // collection field.
           $field_depth = count($elements['#field_parents']) + 3;
-          $field_values = drupal_array_get_nested_value($form_state['values'], array_slice($elements['#array_parents'], 0, $field_depth));
+          $field_values = backdrop_array_get_nested_value($form_state['values'], array_slice($elements['#array_parents'], 0, $field_depth));
 
           // Special case lists since we don't get the correct array_parents.
           if (is_array($field_values) && count($elements['#array_parents']) < $field_depth) {
@@ -1831,7 +1840,7 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
 
     // Load initial form values into $item, so any other form values below the
     // same parents are kept.
-    $item = drupal_array_get_nested_value($form_state['values'], $element['#parents']);
+    $item = backdrop_array_get_nested_value($form_state['values'], $element['#parents']);
 
     // Set the _weight if it is a multiple field.
     if (isset($element['_weight']) && ($field['cardinality'] > 1 || $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED)) {
@@ -1863,6 +1872,7 @@ function field_collection_field_create_field($field) {
     // Do not directly issue menu rebuilds here to avoid potentially multiple
     // rebuilds. Instead, let menu_get_item() issue the rebuild on the next
     // request.
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('menu_rebuild_needed', TRUE);
   }
 }
@@ -1880,6 +1890,7 @@ function field_collection_field_delete_field($field) {
     // Do not directly issue menu rebuilds here to avoid potentially multiple
     // rebuilds. Instead, let menu_get_item() issue the rebuild on the next
     // request.
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('menu_rebuild_needed', TRUE);
   }
 }
@@ -1930,7 +1941,7 @@ function field_collection_i18n_string_list_field_alter(&$properties, $type, $ins
 function field_collection_views_api() {
   return array(
     'api' => '3.0-alpha1',
-    'path' => drupal_get_path('module', 'field_collection') . '/views',
+    'path' => backdrop_get_path('module', 'field_collection') . '/views',
   );
 }
 
@@ -2086,7 +2097,7 @@ function field_collection_field_property_set($entity, $name, $value, $langcode, 
   $entity->{$name}[$langcode] = $items;
   // Empty the static field language cache, so the field system picks up any
   // possible new languages.
-  drupal_static_reset('field_language');
+  backdrop_static_reset('field_language');
 }
 
 /**
@@ -2230,15 +2241,15 @@ function field_collection_entity_translation_insert($entity_type, $entity, $tran
 function field_collection_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
 
   // Load up.
-  $loaded = &drupal_static(__FUNCTION__, FALSE);
+  $loaded = &backdrop_static(__FUNCTION__, FALSE);
 
   if (!$loaded) {
     $loaded = TRUE;
-    $path = drupal_get_path('module', 'feeds') . '/mappers';
-    $files = drupal_system_listing('/.*\.inc$/', $path, 'name', 0);
+    $path = backdrop_get_path('module', 'feeds') . '/mappers';
+    $files = backdrop_system_listing('/.*\.inc$/', $path, 'name', 0);
     foreach ($files as $file) {
       if (strpos($file->uri, '/mappers/') !== FALSE) {
-        require_once DRUPAL_ROOT . '/' . $file->uri;
+        require_once BACKDROP_ROOT . '/' . $file->uri;
       }
     }
   }
@@ -2249,7 +2260,7 @@ function field_collection_feeds_processor_targets_alter(&$targets, $entity_type,
 
       $sub_type = 'field_collection_item';
       $new_targets = module_invoke_all('feeds_processor_targets', $sub_type, $info['field_name']);
-      drupal_alter('feeds_processor_targets', $new_targets, $sub_type, $info['field_name']);
+      backdrop_alter('feeds_processor_targets', $new_targets, $sub_type, $info['field_name']);
 
       foreach ($new_targets as $sub_name => $target) {
         $new_name = t($info['field_name']) . ':' . t($sub_name);
@@ -2277,7 +2288,7 @@ function field_collection_feeds_processor_targets_alter(&$targets, $entity_type,
  * @return [type]               [description]
  */
 function field_collection_feeds_set_target($source, $entity, $target, $value, $main_mapping) {
-  $sub_targets = &drupal_static(__FUNCTION__, array());
+  $sub_targets = &backdrop_static(__FUNCTION__, array());
 
   $args = explode(':', $target);
   $target = array_shift($args);
@@ -2285,12 +2296,12 @@ function field_collection_feeds_set_target($source, $entity, $target, $value, $m
 
   $sub_type = 'field_collection_item';
   $new_targets = module_invoke_all('feeds_processor_targets', $sub_type, $target);
-  drupal_alter('feeds_processor_targets', $new_targets, $sub_type, $target);
+  backdrop_alter('feeds_processor_targets', $new_targets, $sub_type, $target);
 
   // Now we retrieve old callbacks and keep then on a static cache.
   if (!isset($sub_targets[$target])) {
     $sub_targets[$target] = array();
-    drupal_alter('feeds_processor_targets', $sub_targets[$target], $sub_type, $target);
+    backdrop_alter('feeds_processor_targets', $sub_targets[$target], $sub_type, $target);
   }
 
   $_sub_targets = $new_targets;
@@ -2360,7 +2371,7 @@ function field_collection_feeds_set_target($source, $entity, $target, $value, $m
           $callback = 'field_collection_file_feeds_set_target';
         }
 
-        // Allow altering with many parameters. Cannot use drupal_alter here.
+        // Allow altering with many parameters. Cannot use backdrop_alter here.
         $implements = module_implements('sub_target_pre_callback_parse');
         foreach ($implements as $module_name) {
           $hook = $module_name . '_' . 'sub_target_pre_callback_parse';
@@ -2384,7 +2395,7 @@ function field_collection_feeds_set_target($source, $entity, $target, $value, $m
 
   }
   catch (Exception $e) {
-    drupal_set_message($e->getMessage(), 'error');
+    backdrop_set_message($e->getMessage(), 'error');
     watchdog_exception('field_collection', $e, $e->getMessage());
     throw $e;
   }
@@ -2460,7 +2471,7 @@ function field_collection_file_feeds_set_target($source, $entity, $target, $valu
 }
 
 /**
- * Implementation of hook_feeds_presave().
+ * Implements hook_feeds_presave().
  *
  * Invoked before a feed item is saved.
  *
@@ -2507,4 +2518,17 @@ function field_collection_feeds_presave(FeedsSource $source, $entity, $item, $en
       }
     }
   }
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function field_collection_autoload_info() {
+  return array(
+    'FieldCollectionItemEntity' => 'field_collection.entity.inc',
+    'FieldCollectionItemMetadataController' => 'field_collection.info.inc',
+    'MigrateDestinationFieldCollection' => 'field_collection.migrate.inc',
+    'EntityTranslationFieldCollectionItemHandler' => 'includes/translation.handler.field_collection_item.inc',
+    'field_collection_handler_relationship' => 'views/field_collection_handler_relationship.inc',
+  );
 }

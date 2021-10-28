@@ -8,7 +8,7 @@
 /**
  * Test basics.
  */
-class FieldCollectionBasicTestCase extends DrupalWebTestCase {
+class FieldCollectionBasicTestCase extends BackdropWebTestCase {
 
   /**
    *
@@ -119,7 +119,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
    * Helper for creating a new node with a field collection item.
    */
   protected function createNodeWithFieldCollection() {
-    $node = $this->drupalCreateNode(array('type' => 'article'));
+    $node = $this->backdropCreateNode(array('type' => 'article'));
     // Manually create a field_collection.
     $entity = entity_create('field_collection_item', array('field_name' => $this->field_name));
     $entity->setHostEntity('node', $node);
@@ -132,7 +132,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
    * Tests CRUD.
    */
   public function testCRUD() {
-    list ($node, $entity) = $this->createNodeWithFieldCollection();
+    list($node, $entity) = $this->createNodeWithFieldCollection();
     $node = node_load($node->nid, NULL, TRUE);
     $this->assertEqual($entity->item_id, $node->{$this->field_name}[LANGUAGE_NONE][0]['value'], 'A field_collection has been successfully created and referenced.');
     $this->assertEqual($entity->revision_id, $node->{$this->field_name}[LANGUAGE_NONE][0]['revision_id'], 'A field_collection has been successfully created and referenced.');
@@ -163,7 +163,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     $this->assertTrue(entity_load('field_collection_item') === array(), 'Field collections are deleted when the host is deleted.');
 
     // Try deleting nodes with collections without any values.
-    $node = $this->drupalCreateNode(array('type' => 'article'));
+    $node = $this->backdropCreateNode(array('type' => 'article'));
     node_delete($node->nid);
     $this->assertTrue(node_load($node->nid, NULL, TRUE) == FALSE, 'Node without collection values deleted.');
 
@@ -187,7 +187,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     $this->assertTrue(count($node->{$this->field_name}[LANGUAGE_NONE]) == 1 && !empty($node->{$this->field_name}[LANGUAGE_NONE][0]['value']) && !empty($node->{$this->field_name}[LANGUAGE_NONE][0]['revision_id']), 'Link has been established.');
 
     // Test Revisions.
-    list ($node, $item) = $this->createNodeWithFieldCollection();
+    list($node, $item) = $this->createNodeWithFieldCollection();
     $entity2 = entity_create('field_collection_item', array('field_name' => $this->field_name));
     $node->{$this->field_name}[LANGUAGE_NONE][] = array('entity' => $entity2);
     node_save($node);
@@ -235,7 +235,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
 
     // Test having archived field collections, i.e. collections referenced only
     // in non-default revisions.
-    list ($node, $item) = $this->createNodeWithFieldCollection();
+    list($node, $item) = $this->createNodeWithFieldCollection();
     // Create two revisions.
     $node_vid = $node->vid;
     $node->revision = TRUE;
@@ -276,7 +276,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     $this->assertFalse(field_collection_item_load($item->item_id), 'Archived field collection deleted when last revision deleted.');
 
     // Test that removing a field-collection item also deletes it.
-    list ($node, $item) = $this->createNodeWithFieldCollection();
+    list($node, $item) = $this->createNodeWithFieldCollection();
 
     $node->{$this->field_name}[LANGUAGE_NONE] = array();
     $node->revision = FALSE;
@@ -284,7 +284,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     $this->assertFalse(field_collection_item_load($item->item_id), 'Removed field collection item has been deleted.');
 
     // Test removing a field-collection item while creating a new host revision.
-    list ($node, $item) = $this->createNodeWithFieldCollection();
+    list($node, $item) = $this->createNodeWithFieldCollection();
     $node->{$this->field_name}[LANGUAGE_NONE] = array();
     $node->revision = TRUE;
     node_save($node);
@@ -295,7 +295,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
 
     // Test removing an old node revision. Make sure that the field collection
     // is not removed.
-    list ($node, $item) = $this->createNodeWithFieldCollection();
+    list($node, $item) = $this->createNodeWithFieldCollection();
     $node_vid = $node->vid;
     $node->revision = TRUE;
     node_save($node);
@@ -331,47 +331,47 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     );
     field_create_instance($instance);
 
-    $user = $this->drupalCreateUser();
-    $node = $this->drupalCreateNode(array('type' => 'article'));
+    $user = $this->backdropCreateUser();
+    $node = $this->backdropCreateNode(array('type' => 'article'));
 
-    $this->drupalLogin($user);
+    $this->backdropLogin($user);
     // Make sure access is denied.
     $path = 'field-collection/field-test-collection/add/node/' . $node->nid;
-    $this->drupalGet($path);
+    $this->backdropGet($path);
     $this->assertText(t('Access denied'), 'Access has been denied.');
 
-    $user_privileged = $this->drupalCreateUser(array('access content', 'edit any article content'));
-    $this->drupalLogin($user_privileged);
-    $this->drupalGet("node/$node->nid");
+    $user_privileged = $this->backdropCreateUser(array('access content', 'edit any article content'));
+    $this->backdropLogin($user_privileged);
+    $this->backdropGet("node/$node->nid");
     $this->assertLinkByHref($path, 0, 'Add link is shown.');
-    $this->drupalGet($path);
+    $this->backdropGet($path);
     $this->assertText(t('Test text field'), 'Add form is shown.');
 
     $edit['field_text[und][0][value]'] = self::randomName();
-    $this->drupalPost($path, $edit, t('Save'));
+    $this->backdropPost($path, $edit, t('Save'));
     $this->assertText(t('The changes have been saved.'), 'Field collection saved.');
 
     $this->assertText($edit['field_text[und][0][value]'], 'Added field value is shown.');
 
     $edit['field_text[und][0][value]'] = self::randomName();
-    $this->drupalPost('field-collection/field-test-collection/1/edit', $edit, t('Save'));
+    $this->backdropPost('field-collection/field-test-collection/1/edit', $edit, t('Save'));
     $this->assertText(t('The changes have been saved.'), 'Field collection saved.');
     $this->assertText($edit['field_text[und][0][value]'], 'Field collection has been edited.');
 
-    $this->drupalGet('field-collection/field-test-collection/1');
+    $this->backdropGet('field-collection/field-test-collection/1');
     $this->assertText($edit['field_text[und][0][value]'], 'Field collection can be viewed.');
 
     // Add further 3 items, so we have reached 4 == maxium cardinality.
-    $this->drupalPost($path, $edit, t('Save'));
-    $this->drupalPost($path, $edit, t('Save'));
-    $this->drupalPost($path, $edit, t('Save'));
+    $this->backdropPost($path, $edit, t('Save'));
+    $this->backdropPost($path, $edit, t('Save'));
+    $this->backdropPost($path, $edit, t('Save'));
     // Make sure adding doesn't work any more as we have restricted cardinality
     // to 1.
-    $this->drupalGet($path);
+    $this->backdropGet($path);
     $this->assertResponse(403);
 
-    $this->drupalPost('field-collection/field-test-collection/1/delete', array(), t('Delete'));
-    $this->drupalGet($path);
+    $this->backdropPost('field-collection/field-test-collection/1/delete', array(), t('Delete'));
+    $this->backdropGet($path);
     // Add form is shown again.
     $this->assertText(t('Test text field'), 'Field collection item has been deleted.');
 
@@ -381,19 +381,19 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     $node->revision = TRUE;
     node_save($node);
 
-    $this->drupalGet("node/$node->nid/revisions/$vid/view");
+    $this->backdropGet("node/$node->nid/revisions/$vid/view");
     $this->assertResponse(403, 'Access to view revision denied');
     // Login in as admin and try again.
-    $user = $this->drupalCreateUser(array('administer nodes', 'bypass node access'));
-    $this->drupalLogin($user);
-    $this->drupalGet("node/$node->nid/revisions/$vid/view");
+    $user = $this->backdropCreateUser(array('administer nodes', 'bypass node access'));
+    $this->backdropLogin($user);
+    $this->backdropGet("node/$node->nid/revisions/$vid/view");
     $this->assertNoResponse(403, 'Access to view revision granted');
 
     $this->assertNoLinkByHref($path, 'No links on revision view.');
     $this->assertNoLinkByHref('field-collection/field-test-collection/2/edit', 'No links on revision view.');
     $this->assertNoLinkByHref('field-collection/field-test-collection/2/delete', 'No links on revision view.');
 
-    $this->drupalGet("node/$node->nid/revisions");
+    $this->backdropGet("node/$node->nid/revisions");
   }
 
   /**
@@ -437,7 +437,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
 /**
  * Test using field collection with Rules.
  */
-class FieldCollectionRulesIntegrationTestCase extends DrupalWebTestCase {
+class FieldCollectionRulesIntegrationTestCase extends BackdropWebTestCase {
 
   /**
    *
@@ -456,6 +456,7 @@ class FieldCollectionRulesIntegrationTestCase extends DrupalWebTestCase {
    */
   public function setUp() {
     parent::setUp(array('field_collection', 'rules'));
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('rules_debug_log', 1);
   }
 
@@ -510,7 +511,7 @@ class FieldCollectionRulesIntegrationTestCase extends DrupalWebTestCase {
   public function testCreation() {
     $this->createFields();
 
-    $node = $this->drupalCreateNode(array('type' => 'article'));
+    $node = $this->backdropCreateNode(array('type' => 'article'));
     // Create a field collection.
     $action_set = rules_action_set(array('node' => array('type' => 'node', 'bundle' => 'article')));
     $action_set->action('entity_create', array(
@@ -527,10 +528,10 @@ class FieldCollectionRulesIntegrationTestCase extends DrupalWebTestCase {
 
     // Now try making use of the field collection in rules.
     $action_set = rules_action_set(array('node' => array('type' => 'node', 'bundle' => 'article')));
-    $action_set->action('drupal_message', array('message:select' => 'node:field-test-collection:0:field-text'));
+    $action_set->action('backdrop_message', array('message:select' => 'node:field-test-collection:0:field-text'));
     $action_set->execute($node);
 
-    $msg = drupal_get_messages();
+    $msg = backdrop_get_messages();
     $this->assertEqual(array_pop($msg['status']), 'foo', 'Field collection can be used.');
     RulesLog::logger()->checkLog();
   }
@@ -542,7 +543,7 @@ class FieldCollectionRulesIntegrationTestCase extends DrupalWebTestCase {
     // Test using a single-cardinality field collection.
     $this->createFields(1);
 
-    $node = $this->drupalCreateNode(array('type' => 'article'));
+    $node = $this->backdropCreateNode(array('type' => 'article'));
     $entity = entity_create('field_collection_item', array('field_name' => $this->field_name));
     $entity->setHostEntity('node', $node);
     // Now the field collection is linked to the host, but not yet saved.
@@ -565,7 +566,7 @@ class FieldCollectionRulesIntegrationTestCase extends DrupalWebTestCase {
 /**
  * Test using field collection with content that gets translated.
  */
-class FieldCollectionContentTranslationTestCase extends DrupalWebTestCase {
+class FieldCollectionContentTranslationTestCase extends BackdropWebTestCase {
 
   /**
    *
@@ -625,13 +626,14 @@ class FieldCollectionContentTranslationTestCase extends DrupalWebTestCase {
     );
     field_create_instance($instance);
 
-    $admin_user = $this->drupalCreateUser(array('administer languages', 'administer content types', 'access administration pages', 'create article content', 'edit any article content', 'translate content'));
+    $admin_user = $this->backdropCreateUser(array('administer languages', 'administer content types', 'access administration pages', 'create article content', 'edit any article content', 'translate content'));
 
-    $this->drupalLogin($admin_user);
+    $this->backdropLogin($admin_user);
     // Add German language.
     locale_add_language('de');
 
     // Set "Article" content type to use multilingual support.
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('language_content_type_article', TRANSLATION_ENABLED);
   }
 
@@ -646,20 +648,20 @@ class FieldCollectionContentTranslationTestCase extends DrupalWebTestCase {
     $field_collection_name = 'field_test_collection[' . LANGUAGE_NONE . '][0][field_text][' . LANGUAGE_NONE . '][0][value]';
     $edit[$field_collection_name] = self::randomName();
 
-    $this->drupalPost('node/add/article', $edit, t('Save'));
+    $this->backdropPost('node/add/article', $edit, t('Save'));
     $this->assertRaw(t('Article %title has been created.', array('%title' => $edit['title'])), 'Article created.');
-    $node1 = $this->drupalGetNodeByTitle($edit['title']);
+    $node1 = $this->backdropGetNodeByTitle($edit['title']);
 
-    $this->drupalGet('node/' . $node1->nid . '/edit');
-    $this->drupalGet('node/' . $node1->nid . '/translate');
-    $this->drupalGet('node/add/article', array('query' => array('translation' => $node1->nid, 'target' => 'de')));
+    $this->backdropGet('node/' . $node1->nid . '/edit');
+    $this->backdropGet('node/' . $node1->nid . '/translate');
+    $this->backdropGet('node/add/article', array('query' => array('translation' => $node1->nid, 'target' => 'de')));
 
     // Suffix translations with the langcode.
     unset($edit['language']);
     $edit['title'] .= 'DE';
     $edit[$field_collection_name] .= 'DE';
-    $this->drupalPost('node/add/article', $edit, t('Save'), array('query' => array('translation' => $node1->nid, 'target' => 'de')));
-    $node2 = $this->drupalGetNodeByTitle($edit['title']);
+    $this->backdropPost('node/add/article', $edit, t('Save'), array('query' => array('translation' => $node1->nid, 'target' => 'de')));
+    $node2 = $this->backdropGetNodeByTitle($edit['title']);
 
     // Ensure that our new node is the translation of the first one.
     $this->assertEqual($node1->nid, $node2->tnid, 'Succesfully created translation.');
@@ -672,7 +674,7 @@ class FieldCollectionContentTranslationTestCase extends DrupalWebTestCase {
 /**
  * Test using field collection with content that gets translated with Entity Translation.
  */
-class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
+class FieldCollectionEntityTranslationTestCase extends BackdropWebTestCase {
   const TRANS_FIELD_EN = 'Translatable EN';
   const TRANS_FIELD_DE = 'Translatable DE';
   const TRANS_FIELD_DE_MOD = 'Translatable DE Mod';
@@ -699,7 +701,7 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
   public function login($user) {
     if (!isset($this->current_user) || $this->current_user->uid != $user->uid) {
       $this->current_user = $user;
-      $this->drupalLogin($user);
+      $this->backdropLogin($user);
     }
   }
 
@@ -711,7 +713,7 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
    */
   public function getAdminUser(array $permissions = array()) {
     if (!isset($this->admin_user)) {
-      $this->admin_user = $this->drupalCreateUser(array_merge(array(
+      $this->admin_user = $this->backdropCreateUser(array_merge(array(
         'bypass node access',
         'administer nodes',
         'administer languages',
@@ -733,7 +735,7 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
    */
   public function getTranslatorUser(array $permissions = array()) {
     if (!isset($this->translator_user)) {
-      $this->translator_user = $this->drupalCreateUser(array_merge(array(
+      $this->translator_user = $this->backdropCreateUser(array_merge(array(
         'create page content',
         'edit own page content',
         'delete own page content',
@@ -752,16 +754,16 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
    */
   public function addLanguage($langcode) {
     // Check to make sure that language has not already been installed.
-    $this->drupalGet('admin/config/regional/language');
+    $this->backdropGet('admin/config/regional/language');
 
-    if (strpos($this->drupalGetContent(), 'enabled[' . $langcode . ']') === FALSE) {
+    if (strpos($this->backdropGetContent(), 'enabled[' . $langcode . ']') === FALSE) {
       // Doesn't have language installed so add it.
       $edit = array();
       $edit['langcode'] = $langcode;
-      $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+      $this->backdropPost('admin/config/regional/language/add', $edit, t('Add language'));
 
       // Make sure we are not using a stale list.
-      drupal_static_reset('language_list');
+      backdrop_static_reset('language_list');
       $languages = language_list();
       $this->assertTrue(array_key_exists($langcode, $languages), t('Language was installed successfully.'));
 
@@ -776,7 +778,7 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
     else {
       // It is installed but not enabled. Enable it.
       $this->assertTrue(TRUE, 'Language [' . $langcode . '] already installed.');
-      $this->drupalPost(NULL, array('enabled[' . $langcode . ']' => TRUE), t('Save configuration'));
+      $this->backdropPost(NULL, array('enabled[' . $langcode . ']' => TRUE), t('Save configuration'));
       $this->assertRaw(t('Configuration saved.'), t('Language successfully enabled.'));
     }
   }
@@ -796,7 +798,7 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
     // Set "Article" content type to use multilingual support with translation.
     $edit = array();
     $edit['language_content_type'] = ENTITY_TRANSLATION_ENABLED;
-    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
+    $this->backdropPost('admin/structure/types/manage/page', $edit, t('Save content type'));
     $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Basic page')), t('Basic page content type has been updated.'));
 
     // Create a field collection field to use for the tests.
@@ -828,8 +830,8 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
     $this->instance = field_create_instance($this->instance);
 
     // Enable entity translation of field collections.
-    $this->drupalGet('admin/config/regional/entity_translation');
-    $this->drupalPost('admin/config/regional/entity_translation', array('entity_translation_entity_types[field_collection_item]' => TRUE), t('Save configuration'));
+    $this->backdropGet('admin/config/regional/entity_translation');
+    $this->backdropPost('admin/config/regional/entity_translation', array('entity_translation_entity_types[field_collection_item]' => TRUE), t('Save configuration'));
     $this->assertRaw(t('The configuration options have been saved.'), t('Entity translation of field collections enabled.'));
 
     // Add an untraslatable field to the collection.
@@ -894,24 +896,24 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
 
     $title = self::randomName();
 
-    $this->drupalGet('node/add/page');
+    $this->backdropGet('node/add/page');
 
     $edit = array();
     $edit['title'] = $title;
     for ($i = 0; $i < $num_values; $i++) {
       if ($i != 0) {
-        $this->drupalPost(NULL, array(), t('Add another item'));
+        $this->backdropPost(NULL, array(), t('Add another item'));
       }
       $edit[$this->field_base . '[' . $i . ']' . $this->field_untrans_base] = self::UNTRANS_FIELD_EN . '_' . $i;
       $edit[$this->field_base . '[' . $i . ']' . $this->field_trans_base] = self::TRANS_FIELD_EN . '_' . $i;
     }
 
     $edit['language'] = $langcode;
-    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->backdropPost(NULL, $edit, t('Save'));
     $this->assertRaw(t('Basic page %title has been created.', array('%title' => $title)), t('Basic page created.'));
 
     // Check to make sure the node was created.
-    $node = $this->drupalGetNodeByTitle($title);
+    $node = $this->backdropGetNodeByTitle($title);
     $this->assertTrue($node, t('Node found in database.'));
 
     return $node;
@@ -932,7 +934,7 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
     $language_none = LANGUAGE_NONE;
     $edit = array();
 
-    $this->drupalGet('node/' . $node->nid . '/edit/add/' . $source_langcode . '/' . $langcode);
+    $this->backdropGet('node/' . $node->nid . '/edit/add/' . $source_langcode . '/' . $langcode);
 
     // Get the field collection in the original language.
     $fc_values = $node->{$this->field_name}[$source_langcode];
@@ -960,8 +962,8 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
     }
 
     // Save the translation.
-    $this->drupalPost(NULL, $edit, t('Save'));
-    $this->drupalGet('node/' . $node->nid . '/translate');
+    $this->backdropPost(NULL, $edit, t('Save'));
+    $this->backdropGet('node/' . $node->nid . '/translate');
     $this->assertLinkByHref('node/' . $node->nid . '/edit/' . $langcode, 0, t('Translation edit link found. Translation created.'));
 
     // Reload the node.
@@ -991,18 +993,18 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
     $num_original_fc_items = count($node->{$this->field_name}[$source_langcode]);
 
     // Fetch the translation edit form.
-    $this->drupalGet('node/' . $node->nid . '/edit/' . $langcode);
+    $this->backdropGet('node/' . $node->nid . '/edit/' . $langcode);
 
     // Remove the translation.
-    $this->drupalPost(NULL, array(), t('Delete translation'));
+    $this->backdropPost(NULL, array(), t('Delete translation'));
     // Confirm deletion.
-    $this->drupalPost(NULL, array(), t('Delete'));
+    $this->backdropPost(NULL, array(), t('Delete'));
 
     // Reload the node.
     $node = node_load($node->nid, NULL, TRUE);
 
     // Check that the translation is removed.
-    $this->drupalGet('node/' . $node->nid . '/translate');
+    $this->backdropGet('node/' . $node->nid . '/translate');
     $this->assertLinkByHref('node/' . $node->nid . '/edit/add/' . $source_langcode . '/' . $langcode, 0, 'The add translation link appears');
     $this->assert(empty($node->{$this->field_name}[$langcode]));
 
@@ -1042,7 +1044,7 @@ class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
       $field_value = array();
       // Copy the value of the translated field if it's translatable.
       if ($field['translatable']
-        && isset($node->{$field_name}[$node->language])) {
+         && isset($node->{$field_name}[$node->language])) {
         $field_value = $node->{$field_name}[$source_langcode];
         $values[$field_name][$langcode] = $field_value;
         $node->{$field_name}[$langcode] = $field_value;

@@ -191,7 +191,7 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
 }
 
 /**
- * Implements migrate hook_migrate_api().
+ * Implements hook_migrate_api().
  */
 function field_collection_migrate_api() {
   return array(
