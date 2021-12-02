@@ -23,7 +23,7 @@ function field_collection_field_render_revision($item, $context) {
   $entity_type = 'field_collection_item';
   $bundle_name = $context['field']['field_name'];
   $view_mode = $context['view_mode'];
-  $entity = entity_revision_load($entity_type, $item['revision_id']);
+  $entity = entity_plus_revision_load($entity_type, $item['revision_id']);
 
   if (empty($entity)) {
     return array();

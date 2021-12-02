@@ -31,7 +31,7 @@ function field_collection_item_form($form, &$form_state, $field_collection_item)
   // @todo: Fix core and remove the hack.
   $form['field_name'] = array('#type' => 'value', '#value' => $field_collection_item->field_name);
 
-  $langcode = entity_language('field_collection_item', $field_collection_item);
+  $langcode = field_collection_entity_language('field_collection_item', $field_collection_item);
   field_attach_form('field_collection_item', $field_collection_item, $form, $form_state, $langcode);
 
   $form['actions'] = array('#type' => 'actions', '#weight' => 50);
@@ -116,7 +116,7 @@ function field_collection_item_add($field_name, $entity_type, $entity_id, $revis
 
   // Check field cardinality.
   $field = field_info_field($field_name);
-  $langcode = !empty($field['translatable']) ? entity_language($entity_type, $entity) : LANGUAGE_NONE;
+  $langcode = !empty($field['translatable']) ? field_collection_entity_language($entity_type, $entity) : LANGUAGE_NONE;
 
   if (!($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED || !isset($entity->{$field_name}[$langcode]) || count($entity->{$field_name}[$langcode]) < $field['cardinality'])) {
     return MENU_ACCESS_DENIED;

@@ -77,7 +77,7 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
    *   Values: Human-friendly descriptions of the fields.
    */
   public function fields() {
-    $fields = migrate_handler_invoke_all('Entity', 'fields', $this->entityType, $this->bundle);
+    $fields = migrate_handler_invoke_all('Entity', 'fields', $this->entityType(), $this->bundle());
     $fields['item_id'] = t('Field collection entity ID');
     $fields['host_entity_id'] = t('Field collection host ID');
     return $fields;
@@ -117,7 +117,7 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
       }
       $entity = entity_create('field_collection_item', array('field_name' => $this->bundle));
       $updating = FALSE;
-      $host_entity = entity_load_single($this->hostEntityType, $collection->host_entity_id);
+      $host_entity = entity_load($this->hostEntityType, $collection->host_entity_id);
       entity_get_controller($this->hostEntityType)->resetCache();
 
       if (isset($row->language)) {

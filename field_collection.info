@@ -3,6 +3,7 @@ description = Provides a field collection field, to which any number of fields c
 backdrop = 1.x
 type = module
 dependencies[] = entity
+dependencies[] = entity_plus
 test_dependencies[] = entity_translation
 configure = admin/structure/field-collections
 package = Fields

@@ -6,16 +6,16 @@
  */
 
 /**
- * Implements hook_help().
+ * Implements hook_autoload_info().
  */
-function field_collection_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#field_collection':
-      $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('The field collection module provides a field, to which any number of fields can be attached. See the <a href="@field-help">Field module help page</a> for more information about fields.', array('@field-help' => url('admin/help/field'))) . '</p>';
-      return $output;
-  }
+function field_collection_autoload_info() {
+  return array(
+    'FieldCollectionItemEntity' => 'field_collection.entity.inc',
+    'FieldCollectionItemMetadataController' => 'field_collection.info.inc',
+    'MigrateDestinationFieldCollection' => 'field_collection.migrate.inc',
+    'EntityTranslationFieldCollectionItemHandler' => 'includes/translation.handler.field_collection_item.inc',
+    'field_collection_handler_relationship' => 'views/field_collection_handler_relationship.inc',
+  );
 }
 
 /**
@@ -53,15 +53,6 @@ function field_collection_form_field_ui_field_overview_form_alter(&$form, &$form
 }
 
 /**
- * Implements hook_ctools_plugin_directory().
- */
-function field_collection_ctools_plugin_directory($module, $plugin) {
-  if ($module === 'ctools') {
-    return 'ctools/' . $plugin;
-  }
-}
-
-/**
  * Implements hook_entity_info().
  */
 function field_collection_entity_info() {
@@ -70,7 +61,7 @@ function field_collection_entity_info() {
     'label callback' => 'entity_class_label',
     'uri callback' => 'entity_class_uri',
     'entity class' => 'FieldCollectionItemEntity',
-    'controller class' => 'EntityAPIController',
+    'controller class' => 'EntityPlusController',
     'base table' => 'field_collection_item',
     'revision table' => 'field_collection_item_revision',
     'fieldable' => TRUE,
@@ -153,8 +144,14 @@ function field_collection_entity_language($entity_type, $entity) {
     $handler = entity_translation_get_handler($entity_type, $entity);
     $langcode = $handler->getLanguage();
   }
-  else {
+  elseif (function_exists('entity_language')) {
     $langcode = entity_language($entity_type, $entity);
+  }
+  else {
+//    $langcode = !empty($entity->language) ? $entity->language : LANGUAGE_NONE;
+    $langcode = isset($langcode) ? $langcode : $GLOBALS['language_content']->langcode;
+//    $langcode = field_language($entity_type, $entity, $name, isset($options['language']) ? $options['language']->language : NULL);
+//    $langcode = entity_metadata_field_get_language($entity_type, $entity, $field, $langcode);
   }
   return !empty($langcode) ? $langcode : LANGUAGE_NONE;
 }
@@ -191,7 +188,7 @@ function field_collection_item_load($item_id, $reset = FALSE) {
  *   id.
  */
 function field_collection_item_revision_load($revision_id) {
-  return entity_revision_load('field_collection_item', $revision_id);
+  return entity_plus_revision_load('field_collection_item', $revision_id);
 }
 
 /**
@@ -594,7 +591,7 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
         // If the host entity is saved as new revision, do the same for the item.
         if (!empty($host_entity->revision) || !empty($host_entity->is_new_revision)) {
           $entity->revision = TRUE;
-          // Without this cache clear entity_revision_is_default will
+          // Without this cache clear, entity_plus_revision_is_default() will
           // incorrectly return false here when creating a new published
           // revision.
           if (!isset($cleared_host_entity_cache)) {
@@ -602,7 +599,7 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
             entity_get_controller($host_entity_type)->resetCache(array($entity_id));
             $cleared_host_entity_cache = TRUE;
           }
-          $is_default = entity_revision_is_default($host_entity_type, $host_entity);
+          $is_default = entity_plus_revision_is_default($host_entity_type, $host_entity);
           // If an entity type does not support saving non-default entities,
           // assume it will be saved as default.
           if (!isset($is_default) || $is_default) {
@@ -663,7 +660,9 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
       $current_items = array();
       $languages = language_list();
       foreach ($languages as $langcode_value) {
-        $current_items += !empty($host_entity->{$field['field_name']}[$langcode_value->language]) ? $host_entity->{$field['field_name']}[$langcode_value->language] : array();
+        $current_items += !empty($host_entity->{$field['field_name']}[$langcode_value->langcode])
+          ? $host_entity->{$field['field_name']}[$langcode_value->langcode]
+          : array();
         $current_by_id = field_collection_field_item_to_ids($current_items);
       }
       $items_to_remove = array_diff($ids, $current_by_id);
@@ -1065,7 +1064,9 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
           $links = array();
           foreach (field_collection_get_operations($settings) as $op => $label) {
             if ($settings[$op] && entity_access($op === 'edit' ? 'update' : $op, 'field_collection_item', $field_collection)) {
-              $title = entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_$op", $settings[$op]);
+              // entity_i18n_string() is from the D7 Entity API module.
+              // $title = entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_$op", $settings[$op]);
+              $title = $settings[$op];
               $links[] = l($title, $field_collection->path() . '/' . $op, array('query' => backdrop_get_destination()));
             }
           }
@@ -1106,7 +1107,9 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
           foreach (field_collection_get_operations($settings) as $op => $label) {
             if ($settings[$op] && entity_access($op === 'edit' ? 'update' : $op, 'field_collection_item', $field_collection)) {
               $links['#links'][$op] = array(
-                'title' => entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_$op", $settings[$op]),
+                // entity_i18n_string() is from the D7 Entity API module.
+                // 'title' => entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_$op", $settings[$op]),
+                'title' => $settings[$op],
                 'href' => $field_collection->path() . '/' . $op,
                 'query' => backdrop_get_destination(),
               );
@@ -1178,7 +1181,9 @@ function field_collection_field_formatter_links(&$element, $entity_type, $entity
       if ($entity_type !== 'node' && !empty($settings['description'])) {
         $element['#suffix'] .= '<div class="description field-collection-description">' . field_filter_xss($instance['description']) . '</div>';
       }
-      $title = entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_add", $settings['add']);
+      // entity_i18n_string() is from the D7 Entity API module.
+      // $title = entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_add", $settings['add']);
+      $title = $settings['add'];
       $add_path = $path . '/add/' . $entity_type . '/' . $id;
       $element['#suffix'] .=
         '<ul class="action-links action-links-field-collection-add"><li>' .
@@ -1340,7 +1345,8 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
       // Set the language to to parent entity language, because
       // field_content_languages() will always set $language to LANGUAGE_NONE.
       if (field_collection_item_is_translatable()) {
-        field_attach_form('field_collection_item', $field_collection_item, $element, $form_state, entity_language($element['#host_entity_type'], $element['#host_entity']));
+        $langcode = field_collection_entity_language($element['#host_entity_type'], $element['#host_entity']);
+        field_attach_form('field_collection_item', $field_collection_item, $element, $form_state, $langcode);
       }
       else {
         field_attach_form('field_collection_item', $field_collection_item, $element, $form_state, $language);
@@ -1684,13 +1690,17 @@ function field_collection_remove_submit($form, &$form_state) {
  *   The entity object or FALSE.
  */
 function field_collection_field_get_entity(&$item, $field_name = NULL) {
-  if (isset($item['entity']) && ($item['entity']->entityType() == 'field_collection_item')) {
+  if (isset($item['entity'])
+    && !empty($item['entity']->entityType())
+    && $item['entity']->entityType() == 'field_collection_item') {
+
     if (count($item) > 1) {
       // If $item contains more thing than 'entity', then it is sent from VBO.
-      // We clone the object to avoid that the same field collection item of the
-      // faked object is attached to multiple host objects.
+      // We clone the object to avoid that the same field collection item of
+      // the faked object is attached to multiple host objects.
       return clone $item['entity'];
     }
+
     return $item['entity'];
   }
 
@@ -1708,6 +1718,7 @@ function field_collection_field_get_entity(&$item, $field_name = NULL) {
     $item['entity'] = entity_create('field_collection_item', array('field_name' => $field_name));
     return $item['entity'];
   }
+
   return FALSE;
 }
 
@@ -2111,6 +2122,10 @@ function field_collection_devel_generate($object, $field, $instance, $bundle) {
   return _field_collection_devel_generate($object, $field, $instance, $bundle);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function _field_collection_devel_generate($object, $field, $instance, $bundle) {
   // Create a new field collection object and add fake data to its fields.
   $field_collection = entity_create('field_collection_item', array('field_name' => $field['field_name']));
@@ -2518,17 +2533,4 @@ function field_collection_feeds_presave(FeedsSource $source, $entity, $item, $en
       }
     }
   }
-}
-
-/**
- * Implements hook_autoload_info().
- */
-function field_collection_autoload_info() {
-  return array(
-    'FieldCollectionItemEntity' => 'field_collection.entity.inc',
-    'FieldCollectionItemMetadataController' => 'field_collection.info.inc',
-    'MigrateDestinationFieldCollection' => 'field_collection.migrate.inc',
-    'EntityTranslationFieldCollectionItemHandler' => 'includes/translation.handler.field_collection_item.inc',
-    'field_collection_handler_relationship' => 'views/field_collection_handler_relationship.inc',
-  );
 }

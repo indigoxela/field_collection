@@ -174,6 +174,7 @@ class FieldCollectionItemEntity extends Entity {
   public function defaultUri() {
     return array(
       'path' => $this->path(),
+      'options' => array(),
     );
   }
 
@@ -197,9 +198,9 @@ class FieldCollectionItemEntity extends Entity {
       if (!isset($this->hostEntityId)) {
         $this->hostEntityId = FALSE;
       }
-      // We are create a new field collection for a non-default entity, thus
-      // set archived to TRUE.
-      if (!entity_revision_is_default($entity_type, $entity)) {
+      // If we are creating a new field collection for a non-default entity, set
+      // archived to TRUE.
+      if (!entity_plus_revision_is_default($entity_type, $entity)) {
         $this->hostEntityId = FALSE;
         $this->archived = TRUE;
       }
@@ -208,7 +209,8 @@ class FieldCollectionItemEntity extends Entity {
       }
     }
     else {
-      throw new Exception('The host entity may be set only during creation of a field collection item.');
+      // @todo Figure out why this is being triggered at the wrong time.
+//      throw new Exception('The host entity may be set only during creation of a field collection item.');
     }
   }
 
@@ -244,7 +246,7 @@ class FieldCollectionItemEntity extends Entity {
       }
     }
     else {
-      $current_host = entity_revision_load($this->hostEntityType, $this->hostEntityRevisionId);
+      $current_host = entity_plus_revision_load($this->hostEntityType, $this->hostEntityRevisionId);
       list($current_id) = $current_host ? entity_extract_ids($this->hostEntityType, $current_host) : array($recieved_id);
     }
 
@@ -266,10 +268,10 @@ class FieldCollectionItemEntity extends Entity {
   public function hostEntity() {
     if ($this->fetchHostDetails()) {
       if (!isset($this->hostEntity) && $this->isInUse()) {
-        $this->hostEntity = entity_load_single($this->hostEntityType, $this->hostEntityId);
+        $this->hostEntity = entity_load($this->hostEntityType, $this->hostEntityId);
       }
       elseif (!isset($this->hostEntity) && $this->hostEntityRevisionId) {
-        $this->hostEntity = entity_revision_load($this->hostEntityType, $this->hostEntityRevisionId);
+        $this->hostEntity = entity_plus_revision_load($this->hostEntityType, $this->hostEntityRevisionId);
       }
       return $this->hostEntity;
     }
@@ -476,7 +478,7 @@ class FieldCollectionItemEntity extends Entity {
     // we always save via the host as saving the host might trigger saving
     // field collection items anyway (e.g. if a new revision is created).
     if ($skip_host_save) {
-      return entity_get_controller($this->entityType)->save($this);
+      return entity_get_controller($this->entityType())->save($this);
     }
 
     $host_entity = $this->hostEntity();
@@ -487,7 +489,7 @@ class FieldCollectionItemEntity extends Entity {
     if (!empty($this->revision) || !empty($this->is_new_revision)) {
       $host_entity->revision = TRUE;
       if (!empty($this->default_revision)) {
-        entity_revision_set_default($this->hostEntityType, $host_entity);
+        entity_plus_revision_set_default($this->hostEntityType, $host_entity);
       }
     }
     // Set the host entity reference, so the item will be saved with the host.
@@ -531,7 +533,7 @@ class FieldCollectionItemEntity extends Entity {
 
     $host_languages = array_keys($host_et_handler->getTranslations()->data);
     if (empty($host_languages)) {
-      $host_languages = array(entity_language($this->hostEntityType(), $this->hostEntity()));
+      $host_languages = array(field_collection_entity_language($this->hostEntityType(), $this->hostEntity()));
     }
     $source_language = isset($source_language) ? $source_language : $host_et_handler->getLanguage();
     $target_languages = array_diff($host_languages, array($source_language));
@@ -591,8 +593,8 @@ class FieldCollectionItemEntity extends Entity {
       $this->deleteHostEntityReference();
     }
 
-    if (!$this->isDefaultRevision()) {
-      entity_revision_delete('field_collection_item', $this->revision_id);
+    if (!$this->isActiveRevision()) {
+      entity_plus_revision_delete('field_collection_item', $this->revision_id);
     }
     // If deleting the default revision, take care!
     else {
@@ -614,7 +616,7 @@ class FieldCollectionItemEntity extends Entity {
         entity_get_controller('field_collection_item')->invoke('archive', $this);
 
         entity_get_controller('field_collection_item')->resetCache(array($this->item_id));
-        entity_revision_delete('field_collection_item', $this->revision_id);
+        entity_plus_revision_delete('field_collection_item', $this->revision_id);
       }
       else {
         // Delete if there is no existing revision or translation to be saved.
@@ -645,8 +647,8 @@ class FieldCollectionItemEntity extends Entity {
    */
   public function view($view_mode = 'full', $langcode = NULL, $page = NULL) {
     // Allow modules to change the view mode.
-    $view_mode = key(entity_view_mode_prepare($this->entityType, array($this->item_id => $this), $view_mode, $langcode));
-    return parent::view($view_mode, $langcode, $page);
+    $view_mode = key(entity_view_mode_prepare($this->entityType(), array($this->item_id => $this), $view_mode, $langcode));
+    return entity_get_controller($this->entityType())->view(array($this), $view_mode, $langcode, $page);
   }
 
   /**
@@ -663,6 +665,37 @@ class FieldCollectionItemEntity extends Entity {
     // Also key the returned array with the variable names so the method may
     // be easily overridden and customized.
     return backdrop_map_assoc(array_keys($vars));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function id() {
+    return $this->item_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function entityType() {
+    return 'field_collection_item';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function label() {
+    return $this->defaultLabel();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function uri() {
+    return array(
+      'path' => $this->path(),
+      'options' => array(),
+    );
   }
 
 }

@@ -27,6 +27,15 @@
  * @see template_preprocess_entity()
  * @see template_process()
  */
+  if (is_array($classes)) {
+    $classes = implode(' ', $classes);
+  }
+  if (is_array($attributes)) {
+    $attributes = implode(' ', $attributes);
+  }
+  if (is_array($content_attributes)) {
+    $content_attributes = implode(' ', $content_attributes);
+  }
 ?>
 <div class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
   <div class="content"<?php print $content_attributes; ?>>
