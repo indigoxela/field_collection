@@ -16,7 +16,7 @@ Requirements
 
 This module requires that the following modules are also enabled:
 
-- [Entity Plus](https://github.com/backdrop-contrib/entity_plus)
+- [Entity Plus](https://backdropcms.org/project/entity_plus)
 
 
 Installation
@@ -84,7 +84,7 @@ Bugs and feature requests should be reported in [the Issue Queue](https://github
 Current Maintainers
 -------------------
 
-- [Jason Flatt](https://github.com/oadaeh)
+- [Jason Flatt (oadaeh)](https://github.com/oadaeh)
 - Seeking additional maintainers
 
 
@@ -92,15 +92,15 @@ Credits
 -------
 
 - Ported to Backdrop CMS by [Jason Flatt (oadaeh)](https://github.com/oadaeh)
-- Originally written for Drupal by [Wolfgang Ziegler (fago)](https://www.drupal.org/user/16747)
+- Originally written for Drupal by [Wolfgang Ziegler (fago)](https://www.drupal.org/u/fago)
 - Inital development sponsored by [drunomics](https://drunomics.com/)
 - Drupal maintainers:
-  - [Renato Gonçalves (RenatoG)](https://www.drupal.org/user/3326031)
-  - [Ra Mänd (ram4nd)](https://www.drupal.org/user/601534)
-  - [Joel Muzzerall (jmuzz)](https://www.drupal.org/user/2607886)
-  - [Nedjo Rogers (nedjo)](https://www.drupal.org/user/4481)
-  - [Joel Farris (Senpai)](https://www.drupal.org/user/65470)
-  - [Lee Rowlands (larowlan)](https://www.drupal.org/user/395439)
+  - [Renato Gonçalves (RenatoG)](https://www.drupal.org/u/renatog)
+  - [Ra Mänd (ram4nd)](https://www.drupal.org/u/ram4nd)
+  - [Joel Muzzerall (jmuzz)](https://www.drupal.org/u/jmuzz)
+  - [Nedjo Rogers (nedjo)](https://www.drupal.org/u/nedjo)
+  - [Joel Farris (Senpai)](https://www.drupal.org/u/senpai)
+  - [Lee Rowlands (larowlan)](https://www.drupal.org/u/larowlan)
 
 
 License
