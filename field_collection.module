@@ -1100,6 +1100,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
           $element[$delta]['#attributes']['class'][] = 'clearfix';
           $element[$delta]['#attributes']['class'][] = backdrop_clean_css_identifier('view-mode-' . $view_mode);
 
+          // Create and add any links that are accessible by the user.
           $links = array(
             '#theme' => 'links__field_collection_view',
           );

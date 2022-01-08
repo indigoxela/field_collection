@@ -3,6 +3,9 @@
 /**
  * @file
  * Contains API documentation and examples for the Field Collection.
+ *
+ * This might not be completely accurate. It has not yet been reviewed in
+ * relation to the entity API changes made in Backdrop.
  */
 
 /**

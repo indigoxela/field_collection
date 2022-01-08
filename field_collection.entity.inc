@@ -293,7 +293,7 @@ class FieldCollectionItemEntity extends Entity {
   public function hostEntityId() {
     if ($this->fetchHostDetails()) {
       if (!$this->hostEntityId && $this->hostEntityRevisionId) {
-        $this->hostEntityId = entity_id($this->hostEntityType, $this->hostEntity());
+        $this->hostEntityId = entity_get_controller($this->hostEntityType)->id($this->hostEntity());
       }
       return $this->hostEntityId;
     }
@@ -502,7 +502,7 @@ class FieldCollectionItemEntity extends Entity {
       $host_entity->{$this->field_name}[$this->langcode()][] = array('entity' => $this);
     }
 
-    return entity_save($this->hostEntityType, $host_entity);
+    return entity_get_controller($this->hostEntityType)->save($host_entity);
   }
 
   /**
@@ -569,7 +569,7 @@ class FieldCollectionItemEntity extends Entity {
       // Do not save when the host entity is being deleted. See
       // field_collection_field_delete().
       if (empty($this->hostEntity->field_collection_deleting)) {
-        entity_save($this->hostEntityType(), $this->hostEntity());
+        entity_get_controller($this->hostEntityType)->save($this->hostEntity());
       }
     }
   }
