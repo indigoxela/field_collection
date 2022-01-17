@@ -668,6 +668,22 @@ class FieldCollectionItemEntity extends Entity {
   }
 
   /**
+   * Returns the entity identifier, i.e. the entity's name or numeric id.
+   *
+   * This is an artifact of the Entity API module in Drupal. It is being called
+   * from outside this module by other modules, and so it must exist to avoid
+   * exceptions.
+   *
+   * @return int
+   *   The identifier of the entity. This was supposed to return the name, if
+   *   the entity type made use of a name key, but it doesn't so this returns
+   *   the numeric id.
+   */
+  public function identifier() {
+    return $this->id();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function id() {
