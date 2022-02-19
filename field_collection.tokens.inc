@@ -113,7 +113,7 @@ function field_collection_tokens($type, $tokens, array $data = array(), array $o
         }
       }
       foreach ($entity_types as $entity_type => $entity_info) {
-        if ($entity_tokens = token_find_with_prefix($tokens, $entity_type)) {
+        if ($collection instanceof FieldCollectionItemEntity && $entity_tokens = token_find_with_prefix($tokens, $entity_type)) {
           $host = $collection->hostEntity();
           $replacements += token_generate($entity_type, $entity_tokens, array($entity_type => $host), $options);
         }
