@@ -2205,7 +2205,7 @@ function field_collection_entity_translation_insert($entity_type, $entity, $tran
     foreach ($values as $field_name => $value) {
       $field = field_info_field($field_name);
 
-      if ($field['type'] === 'field_collection') {
+      if (isset($field['type']) && $field['type'] === 'field_collection') {
         // We have found a field collection.
         $language = $translation['language'];
         $source_language = $translation['source'];
