@@ -122,6 +122,40 @@ class FieldCollectionItemEntity extends Entity {
   }
 
   /**
+   * Access callback for entity type.
+   */
+  public function access($op, $account = NULL) {
+    // We do not support editing field collection revisions that are not used at
+    // the hosts default revision as saving the host might result in a new
+    // default revision.
+    if ($op !== 'view' && isset($item) && !$item->isInUse()) {
+      return FALSE;
+    }
+    if (user_access('edit field collections', $account)) {
+      return TRUE;
+    }
+    if (user_access('administer field collections', $account)) {
+      return TRUE;
+    }
+    if (!isset($item)) {
+      return FALSE;
+    }
+    $op = $op === 'view' ? 'view' : 'edit';
+
+    // Access is determined by the entity and field containing the reference.
+    $field = field_info_field($item->field_name);
+    $hostEntity = $item->hostEntity() !== FALSE ? $item->hostEntity() : NULL;
+    $entity_access = entity_access(
+      $op === 'view' ? 'view' : 'update',
+      $item->hostEntityType(),
+      $hostEntity,
+      $account
+    );
+
+    return $entity_access && field_access($op, $field, $item->hostEntityType(), $hostEntity, $account);
+  }
+
+  /**
    * Returns the field instance label translated to interface language.
    */
   public function translatedInstanceLabel($langcode = NULL) {

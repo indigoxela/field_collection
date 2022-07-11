@@ -344,46 +344,6 @@ function field_collection_permission() {
 }
 
 /**
- * Determines whether the given user has access to a field collection.
- *
- * @param $op
- *   The operation being performed. One of 'view', 'update', 'create', 'delete'.
- * @param $item
- *   Optionally a field collection item. If nothing is given, access for all
- *   items is determined.
- * @param $account
- *   The user to check for. Leave it to NULL to check for the global user.
- *
- * @return boolean
- *   Whether access is allowed or not.
- */
-function field_collection_item_access($op, FieldCollectionItemEntity $item = NULL, $account = NULL) {
-  // We do not support editing field collection revisions that are not used at
-  // the hosts default revision as saving the host might result in a new default
-  // revision.
-  if ($op !== 'view' && isset($item) && !$item->isInUse()) {
-    return FALSE;
-  }
-  if (user_access('edit field collections', $account)) {
-    return TRUE;
-  }
-  if (user_access('administer field collections', $account)) {
-    return TRUE;
-  }
-  if (!isset($item)) {
-    return FALSE;
-  }
-  $op = $op === 'view' ? 'view' : 'edit';
-
-  // Access is determined by the entity and field containing the reference.
-  $field = field_info_field($item->field_name);
-  $hostEntity = $item->hostEntity() !== FALSE ? $item->hostEntity() : NULL;
-  $entity_access = entity_access($op === 'view' ? 'view' : 'update', $item->hostEntityType(), $hostEntity, $account);
-
-  return $entity_access && field_access($op, $field, $item->hostEntityType(), $hostEntity, $account);
-}
-
-/**
  * Deletion callback
  */
 function field_collection_item_delete($id) {
