@@ -114,7 +114,7 @@ function field_collection_entity_info() {
     }
   }
 
-  if (module_exists('entitycache')) {
+  if (db_table_exists('cache_entity_field_collection_item')) {
     $return['field_collection_item']['field cache'] = FALSE;
     $return['field_collection_item']['entity cache'] = TRUE;
   }
@@ -482,7 +482,14 @@ function field_collection_field_insert($host_entity_type, $host_entity, $field, 
       if (!empty($entity->is_new)) {
         $entity->setHostEntity($host_entity_type, $host_entity, field_collection_entity_language($host_entity_type, $host_entity), FALSE);
       }
-      $entity->save(TRUE);
+
+      try {
+        $entity->save(TRUE);
+      }
+      catch (Exception $exception) {
+        watchdog_exception('field_collection', $exception);
+      }
+
       $item = array(
         'value' => $entity->item_id,
         'revision_id' => $entity->revision_id,
@@ -492,6 +499,10 @@ function field_collection_field_insert($host_entity_type, $host_entity, $field, 
         module_load_include('inc', 'field_collection', 'field_collection.pathauto');
         field_collection_pathauto_create_alias($host_entity, $entity, 'insert');
       }
+
+      // This is necessary to get the $host_entity to display the new field
+      // collection item.
+      cache('entity_' . $host_entity->entityType())->delete($host_entity->nid);
     }
   }
 }
@@ -571,7 +582,12 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
           $entity->updateHostEntity($host_entity, $host_entity_type);
         }
 
-        $entity->save(TRUE);
+        try {
+          $entity->save(TRUE);
+        }
+        catch (Exception $exception) {
+          watchdog_exception('field_collection', $exception);
+        }
 
         $item = array(
           'value' => $entity->item_id,
@@ -582,6 +598,10 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
           module_load_include('inc', 'field_collection', 'field_collection.pathauto');
           field_collection_pathauto_create_alias($host_entity, $entity, 'update');
         }
+
+        // This is necessary to get the $host_entity to display the new field
+        // collection item.
+        cache('entity_' . $host_entity->entityType())->delete($host_entity->nid);
       }
     }
 
@@ -2077,8 +2097,14 @@ function field_collection_devel_generate($object, $field, $instance, $bundle) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Generates sample field collection content.
+ *
+ * @param type $object
+ * @param type $field
+ * @param type $instance
+ * @param type $bundle
+ *
+ * @return array
  */
 function _field_collection_devel_generate($object, $field, $instance, $bundle) {
   // Create a new field collection object and add fake data to its fields.

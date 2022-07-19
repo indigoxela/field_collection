@@ -64,10 +64,8 @@ function field_collection_schema() {
     ),
   );
 
-  if (module_exists('entitycache')) {
-    $schema['cache_entity_field_collection_item'] = backdrop_get_schema_unprocessed('system', 'cache');
-    $schema['cache_entity_field_collection_item']['description'] = 'Cache table used to store field_collection_item entity records.';
-  }
+  $schema['cache_entity_field_collection_item'] = backdrop_get_schema_unprocessed('system', 'cache');
+  $schema['cache_entity_field_collection_item']['description'] = 'Cache table used to store Field Collection item entity records.';
 
   return $schema;
 }
@@ -95,4 +93,16 @@ function field_collection_field_schema($field) {
       'revision_id' => array('revision_id'),
     ),
   );
+}
+
+/**
+ * Creates the table to enable caching of Field Collection item entities.
+ */
+function field_collection_update_1000() {
+  $table = backdrop_get_schema_unprocessed('system', 'cache');
+  $table['description'] = 'Cache table used to store Field Collection item entity records.';
+  if (db_table_exists('cache_entity_field_collection_item')) {
+    db_drop_table('cache_entity_field_collection_item');
+  }
+  db_create_table('cache_entity_field_collection_item', $table);
 }
