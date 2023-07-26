@@ -502,7 +502,7 @@ function field_collection_field_insert($host_entity_type, $host_entity, $field, 
 
       // This is necessary to get the $host_entity to display the new field
       // collection item.
-      cache('entity_' . $host_entity->entityType())->delete($host_entity->nid);
+      cache('entity_' . $host_entity->entityType())->delete($host_entity->id());
     }
   }
 }
@@ -601,7 +601,7 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
 
         // This is necessary to get the $host_entity to display the new field
         // collection item.
-        cache('entity_' . $host_entity->entityType())->delete($host_entity->nid);
+        cache('entity_' . $host_entity->entityType())->delete($host_entity->id());
       }
     }
 
