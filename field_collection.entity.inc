@@ -86,8 +86,8 @@ class FieldCollectionItemEntity extends Entity {
   /**
    * Constructs the entity object.
    */
-  public function __construct(array $values = array(), $entityType = NULL) {
-    parent::__construct($values, 'field_collection_item');
+  public function __construct(array $values = array()) {
+    parent::__construct($values);
     // Workaround issues http://drupal.org/node/1084268 and
     // http://drupal.org/node/1264440:
     // Check if the required property is set before checking for the field's
@@ -141,7 +141,7 @@ class FieldCollectionItemEntity extends Entity {
     // We do not support editing field collection revisions that are not used at
     // the hosts default revision as saving the host might result in a new
     // default revision.
-    if ($op !== 'view' && isset($item) && !$item->isInUse()) {
+    if ($op !== 'view' && !$this->isInUse()) {
       return FALSE;
     }
     if (user_access('edit field collections', $account)) {
@@ -150,22 +150,22 @@ class FieldCollectionItemEntity extends Entity {
     if (user_access('administer field collections', $account)) {
       return TRUE;
     }
-    if (!isset($item)) {
+    if ($op != 'view' || $op != 'edit') {
       return FALSE;
     }
-    $op = $op === 'view' ? 'view' : 'edit';
 
     // Access is determined by the entity and field containing the reference.
-    $field = field_info_field($item->field_name);
-    $hostEntity = $item->hostEntity() !== FALSE ? $item->hostEntity() : NULL;
+    $field = field_info_field($this->field_name);
+    $hostEntity = $this->hostEntity() !== FALSE ? $this->hostEntity() : NULL;
+    $hostEntityType = $this->hostEntityType();
     $entity_access = entity_access(
       $op === 'view' ? 'view' : 'update',
-      $item->hostEntityType(),
+      $hostEntityType,
       $hostEntity,
       $account
     );
 
-    return $entity_access && field_access($op, $field, $item->hostEntityType(), $hostEntity, $account);
+    return $entity_access && field_access($op, $field, $hostEntityType, $hostEntity, $account);
   }
 
   /**
