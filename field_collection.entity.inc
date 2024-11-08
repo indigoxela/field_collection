@@ -150,7 +150,7 @@ class FieldCollectionItemEntity extends Entity {
     if (user_access('administer field collections', $account)) {
       return TRUE;
     }
-    if ($op != 'view' || $op != 'edit') {
+    if ($op != 'view' && $op != 'edit') {
       return FALSE;
     }
 
