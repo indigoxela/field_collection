@@ -122,9 +122,22 @@ class FieldCollectionItemEntity extends Entity {
   }
 
   /**
+   * Overrides Entity::createAccess().
+   */
+  public static function createAccess($bundle = NULL, $account = NULL) {
+    if (empty($account)) {
+      $account = $GLOBALS['user'];
+    }
+    return user_access('edit field collections', $account);
+  }
+
+  /**
    * Access callback for entity type.
    */
   public function access($op, $account = NULL) {
+    if ($op == 'create') {
+      return self::createAccess(NULL, $account);
+    }
     // We do not support editing field collection revisions that are not used at
     // the hosts default revision as saving the host might result in a new
     // default revision.
@@ -191,6 +204,13 @@ class FieldCollectionItemEntity extends Entity {
       return t('New !instance_label', array('!instance_label' => $label));
     }
     return t('Unconnected field collection item');
+  }
+
+  /**
+   *
+   */
+  public function isDefaultRevision() {
+    return $this->default_revision;
   }
 
   /**
@@ -327,7 +347,7 @@ class FieldCollectionItemEntity extends Entity {
   public function hostEntityId() {
     if ($this->fetchHostDetails()) {
       if (!$this->hostEntityId && $this->hostEntityRevisionId) {
-        $this->hostEntityId = entity_get_controller($this->hostEntityType)->id($this->hostEntity());
+        $this->hostEntityId = $this->hostEntity()->id();
       }
       return $this->hostEntityId;
     }

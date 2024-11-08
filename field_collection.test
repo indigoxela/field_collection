@@ -10,22 +10,17 @@
  */
 class FieldCollectionBasicTestCase extends BackdropWebTestCase {
 
-  /**
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Field collection',
-      'description' => 'Tests creating and using field collections.',
-      'group' => 'Field types',
-    );
-  }
+  protected $field_name;
+  protected $field;
+  protected $field_id;
+  protected $instance;
 
   /**
    *
    */
   public function setUp() {
-    parent::setUp('field_collection', 'entity_crud_hook_test');
+    parent::setUp('entity_plus', 'field_collection', 'entity_crud_hook_test');
+    backdrop_static_reset('_field_info_collate_types');
 
     // Create a field_collection field to use for the tests.
     $this->field_name = 'field_test_collection';
@@ -35,12 +30,12 @@ class FieldCollectionBasicTestCase extends BackdropWebTestCase {
       'cardinality' => 4,
     );
     $this->field = field_create_field($this->field);
-    $this->field_id = $this->field['id'];
+    $this->field_id = $this->field['field_name'];
 
     $this->instance = array(
       'field_name' => $this->field_name,
       'entity_type' => 'node',
-      'bundle' => 'article',
+      'bundle' => 'post',
       'label' => self::randomName() . '_label',
       'description' => self::randomName() . '_description',
       'weight' => random_int(0, 127),
@@ -119,7 +114,7 @@ class FieldCollectionBasicTestCase extends BackdropWebTestCase {
    * Helper for creating a new node with a field collection item.
    */
   protected function createNodeWithFieldCollection() {
-    $node = $this->backdropCreateNode(array('type' => 'article'));
+    $node = $this->backdropCreateNode(array('type' => 'post'));
     // Manually create a field_collection.
     $entity = entity_create('field_collection_item', array('field_name' => $this->field_name));
     $entity->setHostEntity('node', $node);
@@ -160,15 +155,15 @@ class FieldCollectionBasicTestCase extends BackdropWebTestCase {
     $this->clearHookMessages();
     node_delete($node->nid);
     $this->assertNoHookMessage('entity_crud_hook_test_entity_presave called for type node');
-    $this->assertTrue(entity_load('field_collection_item') === array(), 'Field collections are deleted when the host is deleted.');
+    $this->assertTrue(entity_load_multiple('field_collection_item') === array(), 'Field collections are deleted when the host is deleted.');
 
     // Try deleting nodes with collections without any values.
-    $node = $this->backdropCreateNode(array('type' => 'article'));
+    $node = $this->backdropCreateNode(array('type' => 'post'));
     node_delete($node->nid);
     $this->assertTrue(node_load($node->nid, NULL, TRUE) == FALSE, 'Node without collection values deleted.');
 
     // Test creating a field collection entity with a not-yet saved host entity.
-    $node = entity_create('node', array('type' => 'article'));
+    $node = entity_create('node', array('type' => 'post', 'uid' => 1));
     $entity = entity_create('field_collection_item', array('field_name' => $this->field_name));
     $entity->setHostEntity('node', $node);
     $entity->save();
@@ -179,7 +174,7 @@ class FieldCollectionBasicTestCase extends BackdropWebTestCase {
 
     // Again, test creating a field collection with a not-yet saved host entity,
     // but this time save both entities via the host.
-    $node = entity_create('node', array('type' => 'article'));
+    $node = entity_create('node', array('type' => 'post', 'uid' => 1));
     $entity = entity_create('field_collection_item', array('field_name' => $this->field_name));
     $entity->setHostEntity('node', $node);
     node_save($node);
@@ -332,15 +327,19 @@ class FieldCollectionBasicTestCase extends BackdropWebTestCase {
     field_create_instance($instance);
 
     $user = $this->backdropCreateUser();
-    $node = $this->backdropCreateNode(array('type' => 'article'));
+    $node = $this->backdropCreateNode(array('type' => 'post'));
 
     $this->backdropLogin($user);
     // Make sure access is denied.
     $path = 'field-collection/field-test-collection/add/node/' . $node->nid;
     $this->backdropGet($path);
-    $this->assertText(t('Access denied'), 'Access has been denied.');
+    $this->assertText(t('You are not authorized to access this page.'), 'Access has been denied.');
 
-    $user_privileged = $this->backdropCreateUser(array('access content', 'edit any article content'));
+    $user_privileged = $this->backdropCreateUser(array(
+      'access content',
+      'edit any post content',
+      'edit field collections',
+    ));
     $this->backdropLogin($user_privileged);
     $this->backdropGet("node/$node->nid");
     $this->assertLinkByHref($path, 0, 'Add link is shown.');
@@ -439,25 +438,24 @@ class FieldCollectionBasicTestCase extends BackdropWebTestCase {
  */
 class FieldCollectionRulesIntegrationTestCase extends BackdropWebTestCase {
 
-  /**
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Field collection Rules integration',
-      'description' => 'Tests using field collections with rules.',
-      'group' => 'Field types',
-      'dependencies' => array('rules'),
-    );
-  }
+  protected $field_name;
+  protected $field_id;
+  protected $field;
+  protected $instance;
 
   /**
    *
    */
   public function setUp() {
-    parent::setUp(array('field_collection', 'rules'));
-    // TODO This variable was probably removed in Backdrop without replacement.
-    variable_set('rules_debug_log', 1);
+    parent::setUp(array(
+      'entity_plus',
+      'field_collection',
+      'entity_ui',
+      'entity_token',
+      'rules',
+    ));
+    config_set('rules.settings', 'rules_debug_log', 1);
+    backdrop_static_reset('_field_info_collate_types');
   }
 
   /**
@@ -468,12 +466,12 @@ class FieldCollectionRulesIntegrationTestCase extends BackdropWebTestCase {
     $this->field_name = 'field_test_collection';
     $this->field = array('field_name' => $this->field_name, 'type' => 'field_collection', 'cardinality' => $cardinality);
     $this->field = field_create_field($this->field);
-    $this->field_id = $this->field['id'];
+    $this->field_id = $this->field['field_name'];
 
     $this->instance = array(
       'field_name' => $this->field_name,
       'entity_type' => 'node',
-      'bundle' => 'article',
+      'bundle' => 'post',
       'label' => self::randomName() . '_label',
       'description' => self::randomName() . '_description',
       'weight' => random_int(0, 127),
@@ -511,9 +509,9 @@ class FieldCollectionRulesIntegrationTestCase extends BackdropWebTestCase {
   public function testCreation() {
     $this->createFields();
 
-    $node = $this->backdropCreateNode(array('type' => 'article'));
+    $node = $this->backdropCreateNode(array('type' => 'post'));
     // Create a field collection.
-    $action_set = rules_action_set(array('node' => array('type' => 'node', 'bundle' => 'article')));
+    $action_set = rules_action_set(array('node' => array('type' => 'node', 'bundle' => 'post')));
     $action_set->action('entity_create', array(
       'type' => 'field_collection_item',
       'param_field_name' => $this->field_name,
@@ -527,12 +525,12 @@ class FieldCollectionRulesIntegrationTestCase extends BackdropWebTestCase {
     $this->assertTrue(!empty($node->{$this->field_name}[LANGUAGE_NONE][0]['revision_id']), 'A field_collection has been successfully created (revision).');
 
     // Now try making use of the field collection in rules.
-    $action_set = rules_action_set(array('node' => array('type' => 'node', 'bundle' => 'article')));
+    $action_set = rules_action_set(array('node' => array('type' => 'node', 'bundle' => 'post')));
     $action_set->action('backdrop_message', array('message:select' => 'node:field-test-collection:0:field-text'));
     $action_set->execute($node);
 
     $msg = backdrop_get_messages();
-    $this->assertEqual(array_pop($msg['status']), 'foo', 'Field collection can be used.');
+    $this->assertEqual(array_pop($msg['info']), 'foo', 'Field collection can be used.');
     RulesLog::logger()->checkLog();
   }
 
@@ -543,7 +541,7 @@ class FieldCollectionRulesIntegrationTestCase extends BackdropWebTestCase {
     // Test using a single-cardinality field collection.
     $this->createFields(1);
 
-    $node = $this->backdropCreateNode(array('type' => 'article'));
+    $node = $this->backdropCreateNode(array('type' => 'post'));
     $entity = entity_create('field_collection_item', array('field_name' => $this->field_name));
     $entity->setHostEntity('node', $node);
     // Now the field collection is linked to the host, but not yet saved.
@@ -553,7 +551,7 @@ class FieldCollectionRulesIntegrationTestCase extends BackdropWebTestCase {
     $this->assertEqual($entity->field_text[LANGUAGE_NONE][0]['value'], 'foo', 'Field collection item used during creation via the wrapper.');
 
     // Now test it via Rules, which should save our changes.
-    $set = rules_action_set(array('node' => array('type' => 'node', 'bundle' => 'article')));
+    $set = rules_action_set(array('node' => array('type' => 'node', 'bundle' => 'post')));
     $set->action('data_set', array('data:select' => 'node:' . $this->field_name . ':field-text', 'value' => 'bar'));
     $set->execute($node);
     $this->assertEqual($entity->field_text[LANGUAGE_NONE][0]['value'], 'bar', 'Field collection item used during creation via Rules.');
@@ -568,33 +566,28 @@ class FieldCollectionRulesIntegrationTestCase extends BackdropWebTestCase {
  */
 class FieldCollectionContentTranslationTestCase extends BackdropWebTestCase {
 
-  /**
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Field collection content translation',
-      'description' => 'Tests using content under translation.',
-      'group' => 'Field types',
-      'dependencies' => array('translation'),
-    );
-  }
+  protected $field_name;
+  protected $field;
+  protected $field_id;
+  protected $instance;
 
   /**
    *
    */
   public function setUp() {
-    parent::setUp(array('field_collection', 'translation'));
+    parent::setUp(array('entity_plus', 'field_collection', 'language', 'locale', 'translation'));
+    backdrop_static_reset('_field_info_collate_types');
+    
     // Create a field_collection field to use for the tests.
     $this->field_name = 'field_test_collection';
     $this->field = array('field_name' => $this->field_name, 'type' => 'field_collection', 'cardinality' => 4);
     $this->field = field_create_field($this->field);
-    $this->field_id = $this->field['id'];
+    $this->field_id = $this->field['field_name'];
 
     $this->instance = array(
       'field_name' => $this->field_name,
       'entity_type' => 'node',
-      'bundle' => 'article',
+      'bundle' => 'post',
       'label' => self::randomName() . '_label',
       'description' => self::randomName() . '_description',
       'weight' => random_int(0, 127),
@@ -626,15 +619,20 @@ class FieldCollectionContentTranslationTestCase extends BackdropWebTestCase {
     );
     field_create_instance($instance);
 
-    $admin_user = $this->backdropCreateUser(array('administer languages', 'administer content types', 'access administration pages', 'create article content', 'edit any article content', 'translate content'));
+    $admin_user = $this->backdropCreateUser(array('administer languages', 'administer content types', 'access administration pages', 'create post content', 'edit any post content', 'translate content'));
 
     $this->backdropLogin($admin_user);
-    // Add German language.
-    locale_add_language('de');
 
-    // Set "Article" content type to use multilingual support.
-    // TODO This variable was probably removed in Backdrop without replacement.
-    variable_set('language_content_type_article', TRANSLATION_ENABLED);
+    // Add German language.
+    $german = (object) array(
+      'langcode' => 'de',
+      'name' => 'German',
+      'direction' => LANGUAGE_LTR,
+    );
+    language_save($german);
+
+    // Set "Post" content type to use multilingual support.
+    config_set('node.type.post', 'settings.language', TRANSLATION_ENABLED);
   }
 
   /**
@@ -644,23 +642,23 @@ class FieldCollectionContentTranslationTestCase extends BackdropWebTestCase {
     // Create "Article" content.
     $edit['title'] = self::randomName();
     $edit['body[' . LANGUAGE_NONE . '][0][value]'] = self::randomName();
-    $edit['language'] = 'en';
+    $edit['langcode'] = 'en';
     $field_collection_name = 'field_test_collection[' . LANGUAGE_NONE . '][0][field_text][' . LANGUAGE_NONE . '][0][value]';
     $edit[$field_collection_name] = self::randomName();
 
-    $this->backdropPost('node/add/article', $edit, t('Save'));
-    $this->assertRaw(t('Article %title has been created.', array('%title' => $edit['title'])), 'Article created.');
+    $this->backdropPost('node/add/post', $edit, t('Save'));
+    $this->assertRaw(t('Post %title has been created.', array('%title' => $edit['title'])), 'Post created.');
     $node1 = $this->backdropGetNodeByTitle($edit['title']);
 
     $this->backdropGet('node/' . $node1->nid . '/edit');
     $this->backdropGet('node/' . $node1->nid . '/translate');
-    $this->backdropGet('node/add/article', array('query' => array('translation' => $node1->nid, 'target' => 'de')));
+    $this->backdropGet('node/add/post', array('query' => array('translation' => $node1->nid, 'target' => 'de')));
 
     // Suffix translations with the langcode.
-    unset($edit['language']);
+    unset($edit['langcode']);
     $edit['title'] .= 'DE';
     $edit[$field_collection_name] .= 'DE';
-    $this->backdropPost('node/add/article', $edit, t('Save'), array('query' => array('translation' => $node1->nid, 'target' => 'de')));
+    $this->backdropPost('node/add/post', $edit, t('Save'), array('query' => array('translation' => $node1->nid, 'target' => 'de')));
     $node2 = $this->backdropGetNodeByTitle($edit['title']);
 
     // Ensure that our new node is the translation of the first one.
@@ -672,7 +670,10 @@ class FieldCollectionContentTranslationTestCase extends BackdropWebTestCase {
 }
 
 /**
- * Test using field collection with content that gets translated with Entity Translation.
+ * Test using field collection with content with Entity Translation.
+ *
+ * Porting of this test to Backdrop has been postponed because of missing
+ * dependency.
  */
 class FieldCollectionEntityTranslationTestCase extends BackdropWebTestCase {
   const TRANS_FIELD_EN = 'Translatable EN';
@@ -1189,7 +1190,7 @@ class FieldCollectionEntityTranslationTestCase extends BackdropWebTestCase {
     /*
      * Test with a page with only one value in the field collection
      */
-    // Create an article in the original language with only one field collection
+    // Create an post in the original language with only one field collection
     // value.
     $node = $this->createPage(1, $source_langcode);
 

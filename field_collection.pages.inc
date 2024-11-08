@@ -87,7 +87,7 @@ function field_collection_item_delete_confirm($form, &$form_state, $field_collec
  */
 function field_collection_item_delete_confirm_submit($form, &$form_state) {
   $field_collection_item = $form_state['field_collection_item'];
-  entity_get_controller('field_collection_item')->delete(array($field_collection_item->item_id));
+  $field_collection_item->delete();
   backdrop_set_message(t('%label has been deleted.', array('%label' => backdrop_ucfirst($field_collection_item->label()))));
   $form_state['redirect'] = '<front>';
 }

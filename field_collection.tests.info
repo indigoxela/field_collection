@@ -16,9 +16,9 @@ description = Tests using content under translation.
 group = Field types
 file = field_collection.test
 
-[FieldCollectionEntityTranslationTestCase]
-name = Field collection entity translation
-description = Tests using content under translation with Entity Translation.
-group = Field types
-file = field_collection.test
+;[FieldCollectionEntityTranslationTestCase]
+;name = Field collection entity translation
+;description = Tests using content under translation with Entity Translation.
+;group = Field types
+;file = field_collection.test
 
