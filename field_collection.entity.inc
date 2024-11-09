@@ -150,9 +150,7 @@ class FieldCollectionItemEntity extends Entity {
     if (user_access('administer field collections', $account)) {
       return TRUE;
     }
-    if ($op != 'view' && $op != 'edit') {
-      return FALSE;
-    }
+    $op = $op === 'view' ? 'view' : 'edit';
 
     // Access is determined by the entity and field containing the reference.
     $field = field_info_field($this->field_name);
