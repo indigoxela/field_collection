@@ -467,9 +467,16 @@ function field_collection_field_settings_form($field, $instance) {
  * Implements hook_field_insert().
  */
 function field_collection_field_insert($host_entity_type, $host_entity, $field, $instance, $langcode, &$items) {
+  $host_entity_new = $host_entity->isNew();
+  // Unlike other entity types Node unsets the "is_new" property before this
+  // hook is invoked. So we need some other criterion to determine, whether a
+  // node is new.
+  if ($host_entity_type == 'node' && !$host_entity_new && empty($entity->original)) {
+    $host_entity_new = TRUE;
+  }
   foreach ($items as &$item) {
     if ($entity = field_collection_field_get_entity($item)) {
-      if (!empty($host_entity->is_new) && empty($entity->is_new)) {
+      if ($host_entity_new && empty($entity->is_new)) {
         // If the host entity is new but we have a field_collection that is not
         // new, it means that its host is being cloned. Thus we need to clone
         // the field collection entity as well.
