@@ -467,12 +467,14 @@ function field_collection_field_settings_form($field, $instance) {
  * Implements hook_field_insert().
  */
 function field_collection_field_insert($host_entity_type, $host_entity, $field, $instance, $langcode, &$items) {
-  $host_entity_new = $host_entity->isNew();
   // Unlike other entity types Node unsets the "is_new" property before this
   // hook is invoked. So we need some other criterion to determine, whether a
   // node is new.
-  if ($host_entity_type == 'node' && !$host_entity_new && empty($entity->original)) {
-    $host_entity_new = TRUE;
+  if ($host_entity_type == 'node') {
+    $host_entity_new = empty($host_entity->original);
+  }
+  else {
+    $host_entity_new = $host_entity->isNew();
   }
   foreach ($items as &$item) {
     if ($entity = field_collection_field_get_entity($item)) {
