@@ -504,10 +504,8 @@ function field_collection_field_insert($host_entity_type, $host_entity, $field, 
         'revision_id' => $entity->revision_id,
       );
 
-      if (module_exists('pathauto')) {
-        module_load_include('inc', 'field_collection', 'field_collection.pathauto');
-        field_collection_pathauto_create_alias($host_entity, $entity, 'insert');
-      }
+      module_load_include('inc', 'path');
+      path_save_automatic_entity_alias($entity);
 
       // This is necessary to get the $host_entity to display the new field
       // collection item.
@@ -603,10 +601,8 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
           'revision_id' => $entity->revision_id,
         );
 
-        if (module_exists('pathauto')) {
-          module_load_include('inc', 'field_collection', 'field_collection.pathauto');
-          field_collection_pathauto_create_alias($host_entity, $entity, 'update');
-        }
+        module_load_include('inc', 'path');
+        path_save_automatic_entity_alias($entity);
 
         // This is necessary to get the $host_entity to display the new field
         // collection item.
