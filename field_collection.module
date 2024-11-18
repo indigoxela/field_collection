@@ -467,9 +467,18 @@ function field_collection_field_settings_form($field, $instance) {
  * Implements hook_field_insert().
  */
 function field_collection_field_insert($host_entity_type, $host_entity, $field, $instance, $langcode, &$items) {
+  // Unlike other entity types Node unsets the "is_new" property before this
+  // hook is invoked. So we need some other criterion to determine, whether a
+  // node is new.
+  if ($host_entity_type == 'node') {
+    $host_entity_new = empty($host_entity->original);
+  }
+  else {
+    $host_entity_new = $host_entity->isNew();
+  }
   foreach ($items as &$item) {
     if ($entity = field_collection_field_get_entity($item)) {
-      if (!empty($host_entity->is_new) && empty($entity->is_new)) {
+      if ($host_entity_new && empty($entity->is_new)) {
         // If the host entity is new but we have a field_collection that is not
         // new, it means that its host is being cloned. Thus we need to clone
         // the field collection entity as well.
@@ -2030,7 +2039,7 @@ function field_collection_item_get_specific_type_host_entity($item, array $optio
  */
 function field_collection_field_property_get($entity, array $options, $name, $entity_type, $info) {
   $field = field_info_field($name);
-  $langcode = field_language($entity_type, $entity, $name, isset($options['language']) ? $options['language']->language : NULL);
+  $langcode = field_language($entity_type, $entity, $name, isset($options['language']) ? $options['language']->langcode : NULL);
   $values = array();
   if (isset($entity->{$name}[$langcode])) {
     foreach ($entity->{$name}[$langcode] as $delta => $data) {
@@ -2109,8 +2118,8 @@ function field_collection_devel_generate($object, $field, $instance, $bundle) {
 function _field_collection_devel_generate($object, $field, $instance, $bundle) {
   // Create a new field collection object and add fake data to its fields.
   $field_collection = entity_create('field_collection_item', array('field_name' => $field['field_name']));
-  $field_collection->language = $object->language;
-  $field_collection->setHostEntity($instance['entity_type'], $object, $object->language, FALSE);
+  $field_collection->language = $object->langcode;
+  $field_collection->setHostEntity($instance['entity_type'], $object, $object->langcode, FALSE);
 
   devel_generate_fields($field_collection, 'field_collection_item', $field['field_name']);
 
