@@ -11,7 +11,8 @@ function field_collection_path_info() {
   $info['field_collection'] = array(
     'entity type' => 'field_collection',
     'token_type' => 'field_collection_item',
-    'label' => t('Field collection item paths'),
+    'label' => t('Field collection'),
+    'pattern label' => t('Field collection item paths'),
     'pattern description' => t('Default path pattern (applies to all field collections with blank patterns below)'),
     'pattern default' => '',
     'pattern items' => array(),
