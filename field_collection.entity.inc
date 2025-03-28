@@ -766,4 +766,11 @@ class FieldCollectionItemEntity extends Entity {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function bundle() {
+    return $this->field_name;
+  }
+
 }
