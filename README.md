@@ -85,7 +85,9 @@ Current Maintainers
 -------------------
 
 - [Jason Flatt (oadaeh)](https://github.com/oadaeh)
-- Seeking additional maintainers
+- [Eli Lisseck](https://github.com/elisseck)
+- [Anthony Nemirovsky](https://github.com/anemirovsky)
+- [Peter Haight](https://github.com/Dawnthorn)
 
 
 Credits
