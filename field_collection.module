@@ -790,7 +790,7 @@ function field_collection_item_is_empty(FieldCollectionItemEntity $item) {
         // If at least one collection-field is not empty; the
         // field collection item is not empty.
         foreach ($item->{$field_name}[$langcode] as $field_item) {
-          if (!module_invoke($field['module'], 'field_is_empty', $field_item, $field)) {
+          if (!module_invoke($field['module'], 'field_is_empty', $field_item, $field, $instance)) {
             $is_empty = FALSE;
           }
         }
