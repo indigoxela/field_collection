@@ -106,3 +106,7 @@ function field_collection_update_1000() {
   }
   db_create_table('cache_entity_field_collection_item', $table);
 }
+
+function field_collection_update_last_removed() {
+  return 7009;
+}
