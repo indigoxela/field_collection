@@ -3,7 +3,7 @@ on: [pull_request]
 jobs:
   simpletest:
     name: Run Simpletest
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Setup env
         run: |
@@ -31,36 +31,36 @@ jobs:
           tools: none
 
       - name: Checkout Backdrop core
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: backdrop/backdrop
 
       - name: Checkout dependency entity_plus
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: backdrop-contrib/entity_plus
           path: modules/entity_plus
 
       - name: Checkout dependency entity_ui
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: backdrop-contrib/entity_ui
           path: modules/entity_ui
 
       - name: Checkout dependency entity_token
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: backdrop-contrib/entity_token
           path: modules/entity_token
 
       - name: Checkout dependency rules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: backdrop-contrib/rules
           path: modules/rules
 
       - name: Checkout module
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: modules/${{ env.REPO_NAME }}
 
@@ -70,6 +70,7 @@ jobs:
           sudo sed -i -e "s?_PWD?$PWD?g" -e "s/_PHP_V/${{ env.USE_PHP_V }}/g" /etc/apache2/sites-available/000-default.conf
           sudo apt-get install libapache2-mod-fcgid
           sudo a2enmod rewrite proxy fcgid proxy_fcgi
+          sudo chmod 751 /home/runner
           sudo systemctl start apache2.service
           sudo sed -i -e 's/user = www-data/user = runner/' /etc/php/${{ env.USE_PHP_V }}/fpm/pool.d/www.conf
           sudo sed -i -e 's/listen.owner = www-data/listen.owner = runner/' /etc/php/${{ env.USE_PHP_V }}/fpm/pool.d/www.conf
